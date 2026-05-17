@@ -38,6 +38,11 @@ export default function BlogPage() {
     });
   };
 
+  const calculateReadingTime = (content: string) => {
+    const words = content ? content.trim().split(/\s+/).length : 0;
+    return Math.max(1, Math.ceil(words / 200));
+  };
+
   return (
     <>
       <SEO 
@@ -79,11 +84,11 @@ export default function BlogPage() {
                       <CardHeader>
                         <div className="flex items-center gap-2 mb-3">
                           <Badge variant="secondary" className="font-sans text-xs">
-                            {post.category}
+                            {post.category || "General"}
                           </Badge>
                           <div className="flex items-center gap-1 text-xs text-muted-foreground">
                             <Clock className="w-3 h-3" />
-                            <span>{post.reading_time_minutes} min read</span>
+                            <span>{calculateReadingTime(post.content)} min read</span>
                           </div>
                         </div>
                         <CardTitle className="font-sans text-xl group-hover:text-primary transition-colors line-clamp-2">

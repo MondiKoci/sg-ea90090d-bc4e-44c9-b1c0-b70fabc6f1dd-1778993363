@@ -43,6 +43,11 @@ export default function BlogPostPage() {
     });
   };
 
+  const calculateReadingTime = (content: string) => {
+    const words = content ? content.trim().split(/\s+/).length : 0;
+    return Math.max(1, Math.ceil(words / 200));
+  };
+
   if (loading) {
     return (
       <>
@@ -102,7 +107,7 @@ export default function BlogPostPage() {
 
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-4">
-                  <Badge className="font-sans">{post.category}</Badge>
+                  <Badge className="font-sans">{post.category || "General"}</Badge>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
@@ -110,7 +115,7 @@ export default function BlogPostPage() {
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
-                      <span>{post.reading_time_minutes} min read</span>
+                      <span>{calculateReadingTime(post.content)} min read</span>
                     </div>
                   </div>
                 </div>
