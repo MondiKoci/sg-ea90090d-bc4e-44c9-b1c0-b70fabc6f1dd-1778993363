@@ -13,16 +13,16 @@ position: 2
 Set up Supabase database tables, storage buckets, and service layer for patient management system. Handle authentication, file uploads, and data access patterns.
 
 ## Checklist
-- [ ] Create patients table with all fields (name, contact, dates, accommodation, payment notes)
-- [ ] Create patient_files table for quotes/receipts uploads
-- [ ] Create patient_reminders table for reminder tracking
-- [ ] Create patient_shares table for granular sharing permissions
-- [ ] Create storage buckets for file uploads (patient-documents)
-- [ ] Set up RLS policies (admin access for full CRUD, public insert for booking form)
-- [ ] Create patientService.ts for all patient CRUD operations
-- [ ] Create fileService.ts for upload/download operations
-- [ ] Create reminderService.ts for reminder management
-- [ ] Create sharingService.ts for patient data sharing
+- [x] Create patients table with all fields (name, contact, dates, accommodation, payment notes)
+- [x] Create patient_files table for quotes/receipts uploads
+- [x] Create patient_reminders table for reminder tracking
+- [x] Create patient_shares table for granular sharing permissions
+- [x] Create storage buckets for file uploads (patient-documents)
+- [x] Set up RLS policies (admin access for full CRUD, public insert for booking form)
+- [x] Create patientService.ts for all patient CRUD operations
+- [x] Create fileService.ts for upload/download operations
+- [x] Create reminderService.ts for reminder management
+- [x] Create sharingService.ts for patient data sharing
 
 ## Acceptance
 - Admin can create, read, update, delete patient records
