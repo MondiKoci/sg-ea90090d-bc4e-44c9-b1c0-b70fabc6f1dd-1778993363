@@ -202,6 +202,48 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          read_at: string | null
+          related_id: string | null
+          title: string
+          type: string
+          updated_at: string | null
+          user_email: string
+          user_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          read_at?: string | null
+          related_id?: string | null
+          title: string
+          type: string
+          updated_at?: string | null
+          user_email: string
+          user_type: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          read_at?: string | null
+          related_id?: string | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+          user_email?: string
+          user_type?: string
+        }
+        Relationships: []
+      }
       package_inclusions: {
         Row: {
           category: string
