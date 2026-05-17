@@ -19,9 +19,14 @@ Enhance the visual design by adding placeholder images throughout key sections. 
 - [x] Add facility images to Why Choose Us section
 - [x] Enhance packages with destination imagery
 - [x] Add visual depth with background patterns or gradients
+- [x] Redesign blog index with featured post layout
+- [x] Add blog post featured images and article imagery
+- [x] Enhance blog post detail page with large hero image
 
 ## Acceptance
 - All sections have appropriate placeholder imagery
 - Images are responsive and properly sized
 - Visual hierarchy is improved with imagery
 - Site feels more premium and professional
+- Blog has featured post layout with images
+- Individual blog posts display large featured images
