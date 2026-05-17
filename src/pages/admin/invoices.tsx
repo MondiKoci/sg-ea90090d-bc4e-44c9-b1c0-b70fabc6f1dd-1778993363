@@ -15,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { invoiceService } from "@/services/invoiceService";
 import { patientService } from "@/services/patientService";
 import { notificationService } from "@/services/notificationService";
+import { emailService } from "@/services/emailService";
 import type { InvoiceWithItems } from "@/services/invoiceService";
 import type { Patient } from "@/services/patientService";
 import { useToast } from "@/hooks/use-toast";
@@ -188,14 +189,28 @@ export default function AdminInvoicesPage() {
         sent_at: new Date().toISOString(),
       });
 
-      // Create notification for patient
+      // Create in-app notification for patient
       await notificationService.notifyPatientInvoice(
         patient.email,
         invoice.invoice_number,
         invoice.id
       );
 
-      toast({ title: `Invoice sent to ${patient.email}` });
+      // Send email notification to patient
+      await emailService.sendInvoiceNotification({
+        to: patient.email,
+        patient_name: patient.full_name,
+        invoice_number: invoice.invoice_number,
+        total: Number(invoice.total).toFixed(2),
+        due_date: invoice.due_date 
+          ? new Date(invoice.due_date).toLocaleDateString()
+          : "Not specified",
+      });
+
+      toast({ 
+        title: `Invoice sent to ${patient.email}`,
+        description: "Patient has been notified via email and in-app notification"
+      });
       loadData();
     } catch (error) {
       toast({

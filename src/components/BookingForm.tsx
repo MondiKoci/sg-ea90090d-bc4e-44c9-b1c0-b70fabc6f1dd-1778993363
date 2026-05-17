@@ -1,63 +1,40 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { patientService } from "@/services/patientService";
-import { packageService } from "@/services/packageService";
-import type { Package } from "@/services/packageService";
-import { Calendar, Mail, Phone, User, FileText, Package as PackageIcon, MessageSquare } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { notificationService } from "@/services/notificationService";
+import { emailService } from "@/services/emailService";
+import { useToast } from "@/hooks/use-toast";
+import { Calendar, Mail, Phone, User, MessageSquare } from "lucide-react";
 
 export function BookingForm() {
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [packages, setPackages] = useState<Package[]>([]);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
     phone: "",
     treatment_interest: "",
-    selected_package: "",
-    preferred_arrival_date: "",
+    arrival_date: "",
     message: "",
   });
 
-  useEffect(() => {
-    loadPackages();
-  }, []);
-
-  const loadPackages = async () => {
-    try {
-      const data = await packageService.getPublishedPackages();
-      setPackages(data);
-    } catch (error) {
-      console.error("Failed to load packages:", error);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitting(true);
 
     try {
-      const selectedPackage = packages.find(p => p.id === formData.selected_package);
-      const packageInfo = selectedPackage 
-        ? `Package: ${selectedPackage.name} (${selectedPackage.destination})\n\n` 
-        : "";
-
+      // Create patient record
       await patientService.createPatient({
         full_name: formData.full_name,
         email: formData.email,
         phone: formData.phone,
         treatment_interest: formData.treatment_interest,
-        status: "pending",
-        arrival_date: formData.preferred_arrival_date || null,
-        work_notes: packageInfo + formData.message,
+        arrival_date: formData.arrival_date || undefined,
+        work_notes: formData.message || undefined,
       });
 
       // Notify admins about new booking
@@ -67,56 +44,56 @@ export function BookingForm() {
         formData.treatment_interest || "Not specified"
       );
 
-      setSubmitted(true);
+      // Send booking confirmation email to patient
+      if (formData.email) {
+        await emailService.sendBookingConfirmation({
+          to: formData.email,
+          full_name: formData.full_name,
+          email: formData.email,
+          phone: formData.phone || "Not provided",
+          treatment_interest: formData.treatment_interest || "Not specified",
+          arrival_date: formData.arrival_date,
+        });
+      }
+
       toast({
         title: "Booking submitted successfully!",
-        description: "We'll contact you soon to confirm your appointment.",
+        description: "We'll contact you soon to confirm your appointment. Check your email for confirmation.",
+      });
+
+      // Reset form
+      setFormData({
+        full_name: "",
+        email: "",
+        phone: "",
+        treatment_interest: "",
+        arrival_date: "",
+        message: "",
       });
     } catch (error) {
       toast({
-        title: "Submission failed",
+        title: "Failed to submit booking",
         description: "Please try again or contact us directly.",
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
-  if (submitted) {
-    return (
-      <Card className="bg-card shadow-lg">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mb-4">
-            <FileText className="h-8 w-8 text-accent" />
-          </div>
-          <CardTitle className="font-sans text-2xl">Thank You!</CardTitle>
-          <CardDescription className="text-base">
-            Your booking request has been received. Our team will contact you within 24 hours to discuss your treatment plan and confirm your appointment.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button onClick={() => setSubmitted(false)} variant="outline" className="w-full">
-            Submit Another Request
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
-    <Card className="bg-card shadow-lg">
+    <Card id="book" className="scroll-mt-20">
       <CardHeader>
-        <CardTitle className="font-sans text-2xl">Book Your Consultation</CardTitle>
+        <CardTitle className="font-sans text-2xl">Book Your Free Consultation</CardTitle>
         <CardDescription>
-          Fill out the form below and we'll contact you within 24 hours to discuss your treatment plan.
+          Fill out the form below and we'll get back to you within 24 hours
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="full_name" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
+            <Label htmlFor="full_name">
+              <User className="w-4 h-4 inline mr-2" />
               Full Name *
             </Label>
             <Input
@@ -128,111 +105,80 @@ export function BookingForm() {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email" className="flex items-center gap-2">
-              <Mail className="h-4 w-4" />
-              Email *
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              required
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              placeholder="john@example.com"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phone" className="flex items-center gap-2">
-              <Phone className="h-4 w-4" />
-              Phone *
-            </Label>
-            <Input
-              id="phone"
-              type="tel"
-              required
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              placeholder="+1 (555) 123-4567"
-            />
-          </div>
-
-          {packages.length > 0 && (
+          <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="package" className="flex items-center gap-2">
-                <PackageIcon className="h-4 w-4" />
-                Select Package (Optional)
+              <Label htmlFor="email">
+                <Mail className="w-4 h-4 inline mr-2" />
+                Email *
               </Label>
-              <Select
-                value={formData.selected_package}
-                onValueChange={(value) => setFormData({ ...formData, selected_package: value })}
-              >
-                <SelectTrigger id="package">
-                  <SelectValue placeholder="Choose a package or skip" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">No package - Individual treatment</SelectItem>
-                  {packages.map((pkg) => (
-                    <SelectItem key={pkg.id} value={pkg.id}>
-                      {pkg.name} - {pkg.destination} 
-                      {pkg.price_from && ` (from $${pkg.price_from.toLocaleString()})`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                id="email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="john@example.com"
+              />
             </div>
-          )}
 
-          <div className="space-y-2">
-            <Label htmlFor="treatment">Treatment Interest *</Label>
-            <Select
-              required
-              value={formData.treatment_interest}
-              onValueChange={(value) => setFormData({ ...formData, treatment_interest: value })}
-            >
-              <SelectTrigger id="treatment">
-                <SelectValue placeholder="Select a treatment" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="dental-implants">Dental Implants</SelectItem>
-                <SelectItem value="veneers">Porcelain Veneers</SelectItem>
-                <SelectItem value="full-mouth">Full Mouth Reconstruction</SelectItem>
-                <SelectItem value="root-canal">Root Canal Treatment</SelectItem>
-                <SelectItem value="whitening">Teeth Whitening</SelectItem>
-                <SelectItem value="crowns">Dental Crowns</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="space-y-2">
+              <Label htmlFor="phone">
+                <Phone className="w-4 h-4 inline mr-2" />
+                Phone
+              </Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="+1 234 567 8900"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="arrival_date" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
+            <Label htmlFor="treatment_interest">Treatment Interest</Label>
+            <Input
+              id="treatment_interest"
+              value={formData.treatment_interest}
+              onChange={(e) => setFormData({ ...formData, treatment_interest: e.target.value })}
+              placeholder="e.g., Dental Implants, Veneers"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="arrival_date">
+              <Calendar className="w-4 h-4 inline mr-2" />
               Preferred Arrival Date
             </Label>
             <Input
               id="arrival_date"
               type="date"
-              value={formData.preferred_arrival_date}
-              onChange={(e) => setFormData({ ...formData, preferred_arrival_date: e.target.value })}
-              min={new Date().toISOString().split("T")[0]}
+              value={formData.arrival_date}
+              onChange={(e) => setFormData({ ...formData, arrival_date: e.target.value })}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="message">Additional Information</Label>
+            <Label htmlFor="message">
+              <MessageSquare className="w-4 h-4 inline mr-2" />
+              Additional Information
+            </Label>
             <Textarea
               id="message"
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              placeholder="Tell us about your dental needs, any specific concerns, or questions you have..."
+              placeholder="Tell us more about your needs..."
               rows={4}
             />
           </div>
 
-          <Button type="submit" disabled={loading} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-sans">
-            {loading ? "Submitting..." : "Request Consultation"}
+          <Button 
+            type="submit" 
+            className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold py-6 text-lg"
+            disabled={submitting}
+          >
+            {submitting ? "Submitting..." : "Book Free Consultation"}
           </Button>
         </form>
       </CardContent>

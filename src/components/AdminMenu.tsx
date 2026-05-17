@@ -2,54 +2,54 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { 
-  Users, 
-  FileText, 
-  ImageIcon, 
-  Package, 
+  LayoutDashboard,
+  Users,
   Stethoscope,
-  Receipt,
-  Home,
-  LogOut
+  FileText,
+  Package,
+  Image,
+  BookOpen,
+  LogOut,
+  BarChart3
 } from "lucide-react";
-import { authService } from "@/services/authService";
 
 export function AdminMenu() {
   const router = useRouter();
+  const currentPath = router.pathname;
 
-  const handleLogout = async () => {
-    await authService.signOut();
+  const menuItems = [
+    { href: "/admin/patients", label: "Patients", icon: Users },
+    { href: "/admin/treatments", label: "Treatments", icon: Stethoscope },
+    { href: "/admin/invoices", label: "Invoices", icon: FileText },
+    { href: "/admin/packages", label: "Packages", icon: Package },
+    { href: "/admin/gallery", label: "Gallery", icon: Image },
+    { href: "/admin/blog", label: "Blog", icon: BookOpen },
+    { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+  ];
+
+  const handleLogout = () => {
     router.push("/admin/login");
   };
 
-  const menuItems = [
-    { href: "/", icon: Home, label: "Website" },
-    { href: "/admin/patients", icon: Users, label: "Patients" },
-    { href: "/admin/invoices", icon: Receipt, label: "Invoices" },
-    { href: "/admin/treatments", icon: Stethoscope, label: "Treatments" },
-    { href: "/admin/packages", icon: Package, label: "Packages" },
-    { href: "/admin/gallery", icon: ImageIcon, label: "Gallery" },
-    { href: "/admin/blog", icon: FileText, label: "Blog" },
-  ];
-
   return (
-    <aside className="w-64 bg-card border-r border-border min-h-screen p-6 flex flex-col">
-      <div className="mb-8">
-        <h2 className="font-sans text-xl font-bold text-primary">Admin Panel</h2>
-        <p className="text-xs text-muted-foreground mt-1">Elite Dental Tourism</p>
-      </div>
+    <aside className="w-64 bg-card border-r border-border p-6 flex flex-col h-screen sticky top-0">
+      <Link href="/admin/patients" className="mb-8">
+        <h2 className="font-sans text-xl font-bold text-primary">
+          Elite Dental Admin
+        </h2>
+      </Link>
 
       <nav className="flex-1 space-y-1">
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const isActive = router.pathname === item.href || 
-                          (item.href !== "/" && router.pathname.startsWith(item.href));
+          const isActive = currentPath === item.href;
           
           return (
             <Link key={item.href} href={item.href}>
               <Button
                 variant={isActive ? "secondary" : "ghost"}
                 className={`w-full justify-start gap-3 ${
-                  isActive ? "bg-accent text-accent-foreground font-semibold" : ""
+                  isActive ? "bg-accent/10 text-accent" : ""
                 }`}
               >
                 <Icon className="w-5 h-5" />
