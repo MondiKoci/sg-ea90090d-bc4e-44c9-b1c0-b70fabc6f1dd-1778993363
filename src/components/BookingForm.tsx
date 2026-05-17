@@ -28,9 +28,13 @@ export function BookingForm() {
 
     try {
       await patientService.createPatient({
-        ...formData,
-        status: "inquiry",
+        full_name: formData.full_name,
+        email: formData.email,
+        phone: formData.phone,
+        treatment_interest: formData.treatment_interest,
+        status: "pending",
         arrival_date: formData.preferred_arrival_date || null,
+        work_notes: formData.message,
       });
 
       setSubmitted(true);

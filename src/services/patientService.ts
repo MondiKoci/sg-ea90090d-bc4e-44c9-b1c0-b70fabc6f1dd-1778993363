@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
 export type Patient = Tables<"patients">;
-export type PatientInsert = Omit<Patient, "id" | "created_at" | "updated_at" | "created_by">;
+export type PatientInsert = Omit<Partial<Patient>, "id" | "created_at" | "updated_at" | "created_by"> & { full_name: string };
 export type PatientUpdate = Partial<PatientInsert>;
 
 export const patientService = {
