@@ -99,6 +99,39 @@ export type Database = {
         }
         Relationships: []
       }
+      email_templates: {
+        Row: {
+          created_at: string | null
+          html_content: string
+          id: string
+          name: string
+          subject: string
+          text_content: string | null
+          updated_at: string | null
+          variables: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          html_content: string
+          id?: string
+          name: string
+          subject: string
+          text_content?: string | null
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          html_content?: string
+          id?: string
+          name?: string
+          subject?: string
+          text_content?: string | null
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Relationships: []
+      }
       invoice_items: {
         Row: {
           created_at: string | null
