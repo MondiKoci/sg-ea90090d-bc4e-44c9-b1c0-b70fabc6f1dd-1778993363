@@ -99,6 +99,92 @@ export type Database = {
         }
         Relationships: []
       }
+      package_inclusions: {
+        Row: {
+          category: string
+          created_at: string | null
+          display_order: number | null
+          id: string
+          is_premium: boolean | null
+          item_text: string
+          package_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_premium?: boolean | null
+          item_text: string
+          package_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_premium?: boolean | null
+          item_text?: string
+          package_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "package_inclusions_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      packages: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          destination: string
+          display_order: number | null
+          duration_days: number | null
+          highlights: string | null
+          id: string
+          name: string
+          price_from: number | null
+          price_to: number | null
+          published: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          destination: string
+          display_order?: number | null
+          duration_days?: number | null
+          highlights?: string | null
+          id?: string
+          name: string
+          price_from?: number | null
+          price_to?: number | null
+          published?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          destination?: string
+          display_order?: number | null
+          duration_days?: number | null
+          highlights?: string | null
+          id?: string
+          name?: string
+          price_from?: number | null
+          price_to?: number | null
+          published?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       patient_files: {
         Row: {
           file_name: string
