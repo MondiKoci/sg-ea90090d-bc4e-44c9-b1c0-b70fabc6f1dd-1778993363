@@ -17,6 +17,7 @@ export default function TreatmentDetailPage() {
   const router = useRouter();
   const { slug } = router.query;
   const [treatment, setTreatment] = useState<Treatment | null>(null);
+  const [relatedTreatments, setRelatedTreatments] = useState<Treatment[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,6 +30,16 @@ export default function TreatmentDetailPage() {
     try {
       const data = await treatmentService.getTreatmentBySlug(treatmentSlug);
       setTreatment(data);
+      
+      if (data) {
+        // Load related treatments from same category or just other treatments
+        const allTreatments = await treatmentService.getPublishedTreatments();
+        const related = allTreatments
+          .filter(t => t.id !== data.id)
+          .filter(t => !data.category || t.category === data.category)
+          .slice(0, 3);
+        setRelatedTreatments(related);
+      }
     } catch (error) {
       console.error("Failed to load treatment:", error);
     } finally {
@@ -240,6 +251,48 @@ export default function TreatmentDetailPage() {
 
             </div>
           </section>
+
+          {/* Related Treatments */}
+          {relatedTreatments.length > 0 && (
+            <section className="py-20 bg-muted/30 border-y border-border">
+              <div className="container">
+                <h2 className="font-sans text-3xl font-bold mb-12 text-center">You May Also Be Interested In</h2>
+                <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                  {relatedTreatments.map((related) => (
+                    <Link key={related.id} href={`/treatments/${related.slug}`}>
+                      <Card className="h-full hover:shadow-xl hover:border-accent/50 transition-all duration-300 cursor-pointer group">
+                        <div className="aspect-video bg-muted overflow-hidden relative">
+                          {related.featured_image_url ? (
+                            <img src={related.featured_image_url} alt={related.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          ) : (
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/5 flex items-center justify-center">
+                              <ImageIcon className="w-12 h-12 text-primary/30" />
+                            </div>
+                          )}
+                        </div>
+                        <CardContent className="p-6 space-y-3">
+                          <h3 className="font-sans text-xl font-bold group-hover:text-primary transition-colors">
+                            {related.title}
+                          </h3>
+                          {related.short_description && (
+                            <p className="text-sm text-muted-foreground line-clamp-2">
+                              {related.short_description}
+                            </p>
+                          )}
+                          {related.savings_percentage && (
+                            <div className="flex items-center gap-2 text-accent font-semibold text-sm pt-2">
+                              <Shield className="w-4 h-4" />
+                              Save up to {related.savings_percentage}%
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
 
           {/* CTA Section */}
           <section className="py-20 bg-card border-t border-border">
