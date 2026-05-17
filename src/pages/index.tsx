@@ -31,7 +31,13 @@ export default function Home() {
           <BeforeAfterGallery />
           <PackagesSection />
           <Destination />
-          <BookingForm />
+          
+          {/* Booking Form Section */}
+          <section className="py-20 bg-gradient-to-b from-background to-muted/20">
+            <div className="container max-w-3xl">
+              <BookingForm />
+            </div>
+          </section>
         </main>
         <Footer />
       </div>
