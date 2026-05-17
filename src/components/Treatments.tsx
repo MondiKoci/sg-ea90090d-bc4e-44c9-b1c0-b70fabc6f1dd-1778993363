@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, Crown, Smile, Scissors, Activity, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const treatments = [
   {
@@ -48,15 +49,17 @@ const treatments = [
 ];
 
 export function Treatments() {
+  const { t } = useLanguage();
+  
   return (
     <section id="treatments" className="py-24 md:py-32 bg-gradient-to-b from-background to-card">
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-20">
           <h2 className="font-sans text-4xl md:text-5xl font-bold text-foreground mb-6">
-            Premium Dental Treatments
+            {t("treatments.title")}
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-            State-of-the-art procedures performed by internationally certified specialists using the latest technology
+            {t("treatments.subtitle")}
           </p>
         </div>
 
@@ -82,7 +85,7 @@ export function Treatments() {
                 <CardContent className="space-y-4">
                   <div className="pt-4 border-t border-border">
                     <div className="flex items-baseline gap-2 mb-2">
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide">From</span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-wide">{t("treatments.from")}</span>
                       <span className="font-sans text-2xl font-bold text-primary">{treatment.priceRange}</span>
                     </div>
                     <div className="text-sm font-medium text-accent">{treatment.savings}</div>
@@ -91,7 +94,7 @@ export function Treatments() {
                     variant="ghost" 
                     className="w-full border border-border hover:border-accent hover:bg-accent/5 group-hover:bg-accent group-hover:text-accent-foreground group-hover:border-accent transition-all"
                   >
-                    Learn More
+                    {t("treatments.learnMore")}
                   </Button>
                 </CardContent>
               </Card>

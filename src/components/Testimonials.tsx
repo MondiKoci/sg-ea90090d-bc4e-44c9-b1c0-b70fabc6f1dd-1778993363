@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Quote } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const testimonials = [
   {
@@ -29,15 +30,17 @@ const testimonials = [
 ];
 
 export function Testimonials() {
+  const { t } = useLanguage();
+  
   return (
     <section id="testimonials" className="py-24 md:py-32 bg-card">
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-20">
           <h2 className="font-sans text-4xl md:text-5xl font-bold text-foreground mb-6">
-            Patient Success Stories
+            {t("testimonials.title")}
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-            Real experiences from patients who transformed their smiles with us
+            {t("testimonials.subtitle")}
           </p>
         </div>
 

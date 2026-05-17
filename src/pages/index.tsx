@@ -3,6 +3,7 @@ import { Hero } from "@/components/Hero";
 import { Treatments } from "@/components/Treatments";
 import { WhyChooseUs } from "@/components/WhyChooseUs";
 import { Testimonials } from "@/components/Testimonials";
+import { BeforeAfterGallery } from "@/components/BeforeAfterGallery";
 import { Destination } from "@/components/Destination";
 import { BookingForm } from "@/components/BookingForm";
 import { Footer } from "@/components/Footer";
@@ -22,6 +23,7 @@ export default function Home() {
           <Treatments />
           <WhyChooseUs />
           <Testimonials />
+          <BeforeAfterGallery />
           <Destination />
           
           <section id="book" className="py-24 px-4">
