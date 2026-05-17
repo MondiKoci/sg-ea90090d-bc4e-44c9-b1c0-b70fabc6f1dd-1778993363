@@ -1,6 +1,6 @@
 ---
 title: Homepage foundation
-status: in_progress
+status: done
 priority: urgent
 type: feature
 tags: [design-system, homepage]
