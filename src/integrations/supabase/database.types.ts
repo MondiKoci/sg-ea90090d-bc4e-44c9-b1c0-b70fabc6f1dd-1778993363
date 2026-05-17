@@ -309,10 +309,13 @@ export type Database = {
           email: string | null
           full_name: string
           id: string
+          last_portal_login: string | null
           payment_first_notes: string | null
           payment_second_notes: string | null
           payment_total_notes: string | null
           phone: string | null
+          portal_access_enabled: boolean | null
+          portal_password: string | null
           status: string | null
           treatment_interest: string | null
           updated_at: string | null
@@ -327,10 +330,13 @@ export type Database = {
           email?: string | null
           full_name: string
           id?: string
+          last_portal_login?: string | null
           payment_first_notes?: string | null
           payment_second_notes?: string | null
           payment_total_notes?: string | null
           phone?: string | null
+          portal_access_enabled?: boolean | null
+          portal_password?: string | null
           status?: string | null
           treatment_interest?: string | null
           updated_at?: string | null
@@ -345,10 +351,13 @@ export type Database = {
           email?: string | null
           full_name?: string
           id?: string
+          last_portal_login?: string | null
           payment_first_notes?: string | null
           payment_second_notes?: string | null
           payment_total_notes?: string | null
           phone?: string | null
+          portal_access_enabled?: boolean | null
+          portal_password?: string | null
           status?: string | null
           treatment_interest?: string | null
           updated_at?: string | null
@@ -382,6 +391,56 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      treatment_steps: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          instructions: string | null
+          patient_id: string
+          scheduled_date: string | null
+          status: string
+          step_number: number
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          instructions?: string | null
+          patient_id: string
+          scheduled_date?: string | null
+          status?: string
+          step_number: number
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          instructions?: string | null
+          patient_id?: string
+          scheduled_date?: string | null
+          status?: string
+          step_number?: number
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "treatment_steps_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       treatments: {
         Row: {
