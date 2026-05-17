@@ -36,6 +36,19 @@ export const treatmentStepService = {
     return data || [];
   },
 
+  // Get all steps for a patient by email
+  async getPatientStepsByEmail(email: string): Promise<TreatmentStep[]> {
+    const { data: patient, error: patientError } = await supabase
+      .from("patients")
+      .select("id")
+      .eq("email", email)
+      .single();
+
+    if (patientError || !patient) return [];
+
+    return this.getPatientSteps(patient.id);
+  },
+
   // Create a new treatment step
   async createStep(stepData: CreateTreatmentStepData): Promise<TreatmentStep> {
     const { data, error } = await supabase
@@ -90,7 +103,11 @@ export const treatmentStepService = {
     percentComplete: number;
   }> {
     const steps = await this.getPatientSteps(patientId);
-    
+    return this.getProgressStats(steps);
+  },
+
+  // Get stats from an array of steps
+  getProgressStats(steps: TreatmentStep[]) {
     const completed = steps.filter(s => s.status === "completed").length;
     const inProgress = steps.filter(s => s.status === "in_progress").length;
     const upcoming = steps.filter(s => s.status === "upcoming").length;
