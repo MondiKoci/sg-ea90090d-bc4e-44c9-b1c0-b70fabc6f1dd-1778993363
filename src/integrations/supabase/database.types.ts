@@ -1,4 +1,4 @@
- 
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 export type Json =
   | string
   | number
@@ -379,6 +379,87 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      treatments: {
+        Row: {
+          benefits: string[] | null
+          category: string | null
+          created_at: string | null
+          display_order: number | null
+          duration_days: number | null
+          faq: Json | null
+          featured_image_url: string | null
+          hero_image_url: string | null
+          icon_name: string | null
+          id: string
+          meta_description: string | null
+          meta_title: string | null
+          overview: string | null
+          price_range_max: number | null
+          price_range_min: number | null
+          procedure_steps: string[] | null
+          published: boolean | null
+          recovery_info: string | null
+          savings_percentage: number | null
+          short_description: string | null
+          slug: string
+          title: string
+          typical_foreign_price: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          benefits?: string[] | null
+          category?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          duration_days?: number | null
+          faq?: Json | null
+          featured_image_url?: string | null
+          hero_image_url?: string | null
+          icon_name?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          overview?: string | null
+          price_range_max?: number | null
+          price_range_min?: number | null
+          procedure_steps?: string[] | null
+          published?: boolean | null
+          recovery_info?: string | null
+          savings_percentage?: number | null
+          short_description?: string | null
+          slug: string
+          title: string
+          typical_foreign_price?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          benefits?: string[] | null
+          category?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          duration_days?: number | null
+          faq?: Json | null
+          featured_image_url?: string | null
+          hero_image_url?: string | null
+          icon_name?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          overview?: string | null
+          price_range_max?: number | null
+          price_range_min?: number | null
+          procedure_steps?: string[] | null
+          published?: boolean | null
+          recovery_info?: string | null
+          savings_percentage?: number | null
+          short_description?: string | null
+          slug?: string
+          title?: string
+          typical_foreign_price?: number | null
           updated_at?: string | null
         }
         Relationships: []
