@@ -91,12 +91,6 @@ export default function BlogPage() {
                         <CardDescription className="line-clamp-3 mb-4">
                           {post.excerpt}
                         </CardDescription>
-                        {post.reading_time && (
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Clock className="w-3 h-3" />
-                            {post.reading_time} min read
-                          </div>
-                        )}
                       </CardContent>
                     </Card>
                   </Link>

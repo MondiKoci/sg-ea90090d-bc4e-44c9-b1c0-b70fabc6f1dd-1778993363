@@ -61,14 +61,13 @@ export default function BlogPostPage() {
   return (
     <>
       <SEO
-        title={post.meta_title || post.title}
-        description={post.meta_description || post.excerpt || `Read our blog post about ${post.title}`}
+        title={post.title}
+        description={post.excerpt || `Read our blog post about ${post.title}`}
         image={post.featured_image_url || "/og-image.png"}
         url={`/blog/${post.slug}`}
         type="article"
         author={post.author || "Elite Dental Tourism"}
         publishedDate={post.published_at || post.created_at}
-        keywords={post.tags?.join(", ")}
       />
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -109,12 +108,6 @@ export default function BlogPostPage() {
                     day: "numeric",
                   })}
                 </span>
-                {post.reading_time && (
-                  <span className="text-sm text-muted-foreground flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    {post.reading_time} min read
-                  </span>
-                )}
                 {post.author && (
                   <span className="text-sm text-muted-foreground flex items-center gap-1">
                     <User className="w-4 h-4" />
@@ -138,20 +131,6 @@ export default function BlogPostPage() {
             <div className="prose prose-lg max-w-none">
               <div dangerouslySetInnerHTML={{ __html: post.content }} />
             </div>
-
-            {/* Tags */}
-            {post.tags && post.tags.length > 0 && (
-              <div className="mt-12 pt-8 border-t border-border">
-                <h3 className="text-sm font-semibold text-muted-foreground mb-3">Tags</h3>
-                <div className="flex flex-wrap gap-2">
-                  {post.tags.map((tag, i) => (
-                    <Badge key={i} variant="outline">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* CTA */}
             <div className="mt-16 p-8 bg-accent/10 border border-accent/20 rounded-2xl text-center">
