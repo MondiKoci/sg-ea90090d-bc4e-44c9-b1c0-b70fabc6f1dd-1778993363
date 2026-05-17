@@ -4,28 +4,30 @@ import { Menu } from "lucide-react";
 
 export function Navigation() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-      <nav className="container flex h-16 items-center justify-between">
-        <Link href="/" className="flex items-center space-x-2">
-          <span className="font-sans text-xl font-bold text-primary">DentalDestination</span>
+    <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
+      <nav className="container flex items-center justify-between py-4">
+        <Link href="/" className="font-sans text-xl font-bold text-primary">
+          Elite Dental Tourism
         </Link>
         
         <div className="hidden md:flex items-center gap-6">
-          <Link href="#treatments" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+          <Link href="/#treatments" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Treatments
           </Link>
-          <Link href="#why-us" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+          <Link href="/#why-choose" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Why Choose Us
           </Link>
-          <Link href="#testimonials" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+          <Link href="/#testimonials" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Testimonials
           </Link>
-          <Link href="#destination" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+          <Link href="/#destination" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Destination
           </Link>
-          <Button className="bg-accent text-accent-foreground hover:bg-accent/90 font-sans font-semibold">
-            Free Consultation
-          </Button>
+          <Link href="/#book">
+            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-sans">
+              Book Appointment
+            </Button>
+          </Link>
         </div>
 
         <Button variant="ghost" size="icon" className="md:hidden">

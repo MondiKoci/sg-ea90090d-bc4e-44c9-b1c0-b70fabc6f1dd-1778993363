@@ -4,6 +4,7 @@ import { Treatments } from "@/components/Treatments";
 import { WhyChooseUs } from "@/components/WhyChooseUs";
 import { Testimonials } from "@/components/Testimonials";
 import { Destination } from "@/components/Destination";
+import { BookingForm } from "@/components/BookingForm";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 
@@ -11,9 +12,8 @@ export default function Home() {
   return (
     <>
       <SEO 
-        title="DentalDestination - Premium Dental Tourism at 70% Lower Cost"
-        description="World-class dental implants, veneers, and treatments abroad. Save 60-70% with internationally trained specialists. ISO certified facility with comprehensive care packages."
-        image="/og-image.png"
+        title="Premium Dental Tourism - World-Class Care, Exceptional Savings"
+        description="Experience world-class dental treatments at up to 70% savings. ISO-certified facility, expert dentists, complete care package with accommodation and travel support."
       />
       <div className="min-h-screen">
         <Navigation />
@@ -23,6 +23,14 @@ export default function Home() {
           <WhyChooseUs />
           <Testimonials />
           <Destination />
+          
+          <section id="book" className="py-24 px-4">
+            <div className="container">
+              <div className="max-w-2xl mx-auto">
+                <BookingForm />
+              </div>
+            </div>
+          </section>
         </main>
         <Footer />
       </div>
