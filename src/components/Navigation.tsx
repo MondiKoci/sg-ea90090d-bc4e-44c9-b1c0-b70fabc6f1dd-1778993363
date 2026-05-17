@@ -32,6 +32,9 @@ export function Navigation() {
           <Link href="/#before-after" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             {t("nav.beforeAfter")}
           </Link>
+          <Link href="/#packages" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            Packages
+          </Link>
           <Link href="/blog" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             {t("nav.blog")}
           </Link>

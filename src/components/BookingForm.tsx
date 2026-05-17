@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,27 +6,49 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { patientService } from "@/services/patientService";
-import { Calendar, Mail, Phone, User, FileText } from "lucide-react";
+import { packageService } from "@/services/packageService";
+import type { Package } from "@/services/packageService";
+import { Calendar, Mail, Phone, User, FileText, Package as PackageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export function BookingForm() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [packages, setPackages] = useState<Package[]>([]);
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
     phone: "",
     treatment_interest: "",
+    selected_package: "",
     preferred_arrival_date: "",
     message: "",
   });
+
+  useEffect(() => {
+    loadPackages();
+  }, []);
+
+  const loadPackages = async () => {
+    try {
+      const data = await packageService.getPublishedPackages();
+      setPackages(data);
+    } catch (error) {
+      console.error("Failed to load packages:", error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      const selectedPackage = packages.find(p => p.id === formData.selected_package);
+      const packageInfo = selectedPackage 
+        ? `Package: ${selectedPackage.name} (${selectedPackage.destination})\n\n` 
+        : "";
+
       await patientService.createPatient({
         full_name: formData.full_name,
         email: formData.email,
@@ -34,7 +56,7 @@ export function BookingForm() {
         treatment_interest: formData.treatment_interest,
         status: "pending",
         arrival_date: formData.preferred_arrival_date || null,
-        work_notes: formData.message,
+        work_notes: packageInfo + formData.message,
       });
 
       setSubmitted(true);
@@ -127,6 +149,32 @@ export function BookingForm() {
               placeholder="+1 (555) 123-4567"
             />
           </div>
+
+          {packages.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="package" className="flex items-center gap-2">
+                <PackageIcon className="h-4 w-4" />
+                Select Package (Optional)
+              </Label>
+              <Select
+                value={formData.selected_package}
+                onValueChange={(value) => setFormData({ ...formData, selected_package: value })}
+              >
+                <SelectTrigger id="package">
+                  <SelectValue placeholder="Choose a package or skip" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No package - Individual treatment</SelectItem>
+                  {packages.map((pkg) => (
+                    <SelectItem key={pkg.id} value={pkg.id}>
+                      {pkg.name} - {pkg.destination} 
+                      {pkg.price_from && ` (from $${pkg.price_from.toLocaleString()})`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="treatment">Treatment Interest *</Label>
