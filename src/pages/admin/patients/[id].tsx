@@ -112,7 +112,7 @@ export default function PatientDetailPage() {
   const loadPatientData = async (patientId: string) => {
     try {
       const [patientData, filesData, remindersData, sharesData, stepsData] = await Promise.all([
-        patientService.getPatient(patientId),
+        patientService.getPatientById(patientId),
         fileService.getPatientFiles(patientId),
         reminderService.getPatientReminders(patientId),
         sharingService.getPatientShares(patientId),
@@ -213,11 +213,11 @@ export default function PatientDetailPage() {
     if (!patient) return;
 
     try {
-      await reminderService.createReminder({
-        patient_id: patient.id,
-        reminder_text: reminderText,
-        reminder_date: reminderDate ? new Date(reminderDate).toISOString() : null,
-      });
+      await reminderService.createReminder(
+        patient.id,
+        reminderText,
+        reminderDate ? new Date(reminderDate).toISOString() : undefined
+      );
       toast({ title: "Reminder created" });
       setReminderDialogOpen(false);
       setReminderText("");
@@ -235,7 +235,10 @@ export default function PatientDetailPage() {
     if (!patient) return;
 
     try {
-      await reminderService.toggleReminder(reminderId, completed);
+      await reminderService.updateReminder(reminderId, {
+        is_completed: completed,
+        completed_at: completed ? new Date().toISOString() : null,
+      } as any);
       loadPatientData(patient.id);
     } catch (error) {
       toast({
@@ -249,7 +252,7 @@ export default function PatientDetailPage() {
     if (!patient) return;
 
     try {
-      await sharingService.sharePatient(patient.id, shareEmail);
+      await sharingService.sharePatientData(patient.id, shareEmail);
       toast({ title: `Patient record shared with ${shareEmail}` });
       setShareDialogOpen(false);
       setShareEmail("");
@@ -266,7 +269,7 @@ export default function PatientDetailPage() {
     if (!patient) return;
 
     try {
-      await sharingService.deleteShare(shareId);
+      await sharingService.removeShare(shareId);
       toast({ title: "Access revoked" });
       loadPatientData(patient.id);
     } catch (error) {

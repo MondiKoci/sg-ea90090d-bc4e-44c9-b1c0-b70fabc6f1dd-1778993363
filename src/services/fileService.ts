@@ -65,13 +65,22 @@ export const fileService = {
   },
 
   // Delete file
-  async deleteFile(fileId: string, filePath: string) {
-    // Delete from storage
-    const { error: storageError } = await supabase.storage
-      .from("patient-documents")
-      .remove([filePath]);
+  async deleteFile(fileId: string) {
+    // First get the file path
+    const { data: file } = await supabase
+      .from("patient_files")
+      .select("file_path")
+      .eq("id", fileId)
+      .single();
 
-    if (storageError) throw storageError;
+    if (file) {
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from("patient-documents")
+        .remove([file.file_path]);
+
+      if (storageError) throw storageError;
+    }
 
     // Delete database record
     const { error } = await supabase
