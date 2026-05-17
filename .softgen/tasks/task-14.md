@@ -1,6 +1,6 @@
 ---
 title: Fix admin menu and add invoicing system
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [admin, invoicing, bugfix]
@@ -13,15 +13,15 @@ position: 14
 Fix missing admin dashboard navigation menu, implement complete invoicing system with generation/editing/preview/sending, and fix patient status update bug.
 
 ## Checklist
-- [ ] Add admin navigation/sidebar menu
-- [ ] Create invoices database table
-- [ ] Create invoice service with CRUD operations
-- [ ] Build admin invoice management page
-- [ ] Add invoice generation with line items
-- [ ] Implement PDF preview functionality
-- [ ] Add send invoice to patient portal
-- [ ] Display invoices in patient portal
-- [ ] Fix patient status update bug in admin
+- [x] Add admin navigation/sidebar menu
+- [x] Create invoices database table
+- [x] Create invoice service with CRUD operations
+- [x] Build admin invoice management page
+- [x] Add invoice generation with line items
+- [x] Implement PDF preview functionality
+- [x] Add send invoice to patient portal
+- [x] Display invoices in patient portal
+- [x] Fix patient status update bug in admin
 
 ## Acceptance
 - Admin has accessible navigation menu

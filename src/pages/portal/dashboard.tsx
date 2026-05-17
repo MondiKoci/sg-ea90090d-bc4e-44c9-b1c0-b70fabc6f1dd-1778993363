@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { patientAuthService } from "@/services/patientAuthService";
 import { treatmentStepService } from "@/services/treatmentStepService";
+import { invoiceService } from "@/services/invoiceService";
 import type { TreatmentStep } from "@/services/treatmentStepService";
+import type { InvoiceWithItems } from "@/services/invoiceService";
 import { 
   CheckCircle2, 
   Clock, 
@@ -20,38 +22,37 @@ import {
   FileText,
   AlertCircle,
   ArrowRight,
-  Loader2
+  Loader2,
+  DollarSign
 } from "lucide-react";
 
 export default function PatientDashboard() {
   const router = useRouter();
-  const [session, setSession] = useState(patientAuthService.getSession());
+  const [session, setSession] = useState<any>(null);
   const [steps, setSteps] = useState<TreatmentStep[]>([]);
-  const [progress, setProgress] = useState({ total: 0, completed: 0, inProgress: 0, upcoming: 0, percentComplete: 0 });
+  const [invoices, setInvoices] = useState<InvoiceWithItems[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!session) {
+    const currentSession = patientAuthService.getSession();
+    if (!currentSession) {
       router.push("/portal/login");
       return;
     }
+    setSession(currentSession);
+    loadData(currentSession.email);
+  }, [router]);
 
-    loadTreatmentProgress();
-  }, [session, router]);
-
-  const loadTreatmentProgress = async () => {
-    if (!session) return;
-
+  const loadData = async (email: string) => {
     try {
-      const [stepsData, progressData] = await Promise.all([
-        treatmentStepService.getPatientSteps(session.patientId),
-        treatmentStepService.getPatientProgress(session.patientId),
+      const [stepsData, invoicesData] = await Promise.all([
+        treatmentStepService.getPatientStepsByEmail(email),
+        invoiceService.getPatientInvoicesByEmail(email),
       ]);
-
       setSteps(stepsData);
-      setProgress(progressData);
+      setInvoices(invoicesData);
     } catch (error) {
-      console.error("Failed to load treatment progress:", error);
+      console.error("Failed to load data:", error);
     } finally {
       setLoading(false);
     }
@@ -61,6 +62,11 @@ export default function PatientDashboard() {
     patientAuthService.logout();
     router.push("/portal/login");
   };
+
+  const stats = treatmentStepService.getProgressStats(steps);
+  const completedSteps = steps.filter(s => s.status === "completed");
+  const inProgressSteps = steps.filter(s => s.status === "in_progress");
+  const upcomingSteps = steps.filter(s => s.status === "upcoming");
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -75,30 +81,27 @@ export default function PatientDashboard() {
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  const getInvoiceStatusColor = (status: string) => {
     switch (status) {
-      case "completed":
-        return <CheckCircle2 className="w-5 h-5 text-green-600" />;
-      case "in_progress":
-        return <Clock className="w-5 h-5 text-blue-600" />;
-      case "upcoming":
-        return <ArrowRight className="w-5 h-5 text-muted-foreground" />;
+      case "paid":
+        return "bg-green-500/10 text-green-700 border-green-500/20";
+      case "sent":
+        return "bg-blue-500/10 text-blue-700 border-blue-500/20";
+      case "overdue":
+        return "bg-red-500/10 text-red-700 border-red-500/20";
       default:
-        return <Clock className="w-5 h-5" />;
+        return "bg-muted text-muted-foreground border-border";
     }
   };
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return null;
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  if (!session) {
-    return null;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="flex items-center justify-center min-h-[60vh]">Loading...</div>
+        <Footer />
+      </div>
+    );
   }
 
   return (
@@ -116,7 +119,7 @@ export default function PatientDashboard() {
             <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
               <div>
                 <h1 className="font-sans text-3xl md:text-4xl font-bold mb-2">
-                  Welcome back, {session.fullName}
+                  Welcome back, {session?.fullName}
                 </h1>
                 <p className="text-muted-foreground">Track your treatment journey and stay informed</p>
               </div>
@@ -126,187 +129,232 @@ export default function PatientDashboard() {
               </Button>
             </div>
 
-            {loading ? (
-              <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              </div>
-            ) : (
-              <>
-                {/* Progress Overview */}
-                <div className="grid md:grid-cols-4 gap-4 mb-8">
-                  <Card className="bg-card border-border/50 shadow-sm">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <FileText className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-2xl font-bold">{progress.total}</p>
-                          <p className="text-xs text-muted-foreground">Total Steps</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-card border-border/50 shadow-sm">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-green-500/10 rounded-lg">
-                          <CheckCircle2 className="w-5 h-5 text-green-600" />
-                        </div>
-                        <div>
-                          <p className="text-2xl font-bold">{progress.completed}</p>
-                          <p className="text-xs text-muted-foreground">Completed</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-card border-border/50 shadow-sm">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-blue-500/10 rounded-lg">
-                          <Clock className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="text-2xl font-bold">{progress.inProgress}</p>
-                          <p className="text-xs text-muted-foreground">In Progress</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-card border-border/50 shadow-sm">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-muted rounded-lg">
-                          <ArrowRight className="w-5 h-5 text-muted-foreground" />
-                        </div>
-                        <div>
-                          <p className="text-2xl font-bold">{progress.upcoming}</p>
-                          <p className="text-xs text-muted-foreground">Upcoming</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+            {/* Progress Overview */}
+            <Card className="mb-8 border-accent/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-accent" />
+                  Treatment Progress
+                </CardTitle>
+                <CardDescription>Track your dental tourism journey</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium">Overall Progress</span>
+                    <span className="text-sm font-semibold text-accent">{stats.percentComplete}%</span>
+                  </div>
+                  <Progress value={stats.percentComplete} className="h-3" />
                 </div>
 
-                {/* Overall Progress */}
-                <Card className="mb-8 bg-gradient-to-br from-accent/5 to-primary/5 border-accent/20">
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-sans text-lg font-semibold">Overall Progress</h3>
-                      <span className="text-2xl font-bold text-primary">{progress.percentComplete}%</span>
-                    </div>
-                    <Progress value={progress.percentComplete} className="h-3" />
-                    <p className="text-sm text-muted-foreground mt-2">
-                      {progress.completed} of {progress.total} steps completed
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                    <p className="text-sm text-green-700 mb-1">Completed</p>
+                    <p className="text-2xl font-bold text-green-700">{stats.completed}</p>
+                  </div>
+                  <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                    <p className="text-sm text-blue-700 mb-1">In Progress</p>
+                    <p className="text-2xl font-bold text-blue-700">{stats.inProgress}</p>
+                  </div>
+                  <div className="p-4 bg-muted border border-border rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">Upcoming</p>
+                    <p className="text-2xl font-bold text-foreground">{stats.upcoming}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-                {/* Treatment Steps Timeline */}
-                <Card className="shadow-lg border-border/50">
-                  <CardHeader>
-                    <CardTitle className="font-sans text-2xl">Treatment Timeline</CardTitle>
-                    <CardDescription>
-                      Your personalized treatment journey with detailed instructions
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {steps.length === 0 ? (
-                      <Alert>
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>
-                          Your treatment plan is being prepared. Check back soon for updates.
-                        </AlertDescription>
-                      </Alert>
-                    ) : (
-                      <div className="space-y-6">
-                        {steps.map((step, index) => (
-                          <div key={step.id} className="relative">
-                            {/* Timeline connector */}
-                            {index !== steps.length - 1 && (
-                              <div className="absolute left-6 top-14 bottom-[-24px] w-0.5 bg-border" />
+            {/* Invoices Section */}
+            {invoices.length > 0 && (
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3">
+                    <DollarSign className="w-6 h-6 text-accent" />
+                    Invoices
+                  </CardTitle>
+                  <CardDescription>View and track your payment invoices</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {invoices.map((invoice) => (
+                      <div key={invoice.id} className="p-4 border border-border rounded-lg hover:border-accent/50 transition-colors">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="font-mono font-semibold text-sm">
+                                {invoice.invoice_number}
+                              </span>
+                              <Badge variant="outline" className={getInvoiceStatusColor(invoice.status)}>
+                                {invoice.status}
+                              </Badge>
+                            </div>
+                            <div className="grid md:grid-cols-2 gap-2 text-sm text-muted-foreground">
+                              <p>
+                                <FileText className="w-3 h-3 inline mr-1" />
+                                Issue Date: {new Date(invoice.issue_date).toLocaleDateString()}
+                              </p>
+                              {invoice.due_date && (
+                                <p>
+                                  <Calendar className="w-3 h-3 inline mr-1" />
+                                  Due Date: {new Date(invoice.due_date).toLocaleDateString()}
+                                </p>
+                              )}
+                            </div>
+                            {invoice.notes && (
+                              <p className="text-sm text-muted-foreground mt-2">{invoice.notes}</p>
                             )}
+                          </div>
+                          <div className="text-right">
+                            <p className="text-2xl font-bold">${Number(invoice.total).toFixed(2)}</p>
+                            {invoice.status === "paid" && invoice.paid_at && (
+                              <p className="text-xs text-green-600 mt-1">
+                                ✓ Paid on {new Date(invoice.paid_at).toLocaleDateString()}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Invoice Items */}
+                        <div className="mt-4 pt-4 border-t border-border space-y-2">
+                          <p className="text-xs font-semibold text-muted-foreground mb-2">Items:</p>
+                          {invoice.items.map((item, idx) => (
+                            <div key={idx} className="flex justify-between text-sm">
+                              <span>{item.description} (x{Number(item.quantity)})</span>
+                              <span className="font-semibold">${Number(item.total).toFixed(2)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-                            <div className="flex gap-4">
-                              {/* Step number circle */}
-                              <div className={`
-                                w-12 h-12 rounded-full flex items-center justify-center shrink-0 relative z-10 border-2
-                                ${step.status === 'completed' ? 'bg-green-500 border-green-500' : 
-                                  step.status === 'in_progress' ? 'bg-blue-500 border-blue-500' : 
-                                  'bg-muted border-border'}
-                              `}>
-                                {step.status === 'completed' ? (
-                                  <CheckCircle2 className="w-6 h-6 text-white" />
-                                ) : (
-                                  <span className={`font-bold ${
-                                    step.status === 'in_progress' ? 'text-white' : 'text-muted-foreground'
-                                  }`}>
-                                    {step.step_number}
-                                  </span>
-                                )}
+            {/* Treatment Steps Timeline */}
+            <Card className="shadow-lg border-border/50">
+              <CardHeader>
+                <CardTitle className="font-sans text-2xl">Treatment Timeline</CardTitle>
+                <CardDescription>
+                  Your personalized treatment journey with detailed instructions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {steps.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <CheckCircle2 className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                    <p>No treatment steps scheduled yet.</p>
+                    <p className="text-sm mt-2">Your doctor will add steps to your treatment plan soon.</p>
+                  </div>
+                ) : (
+                  <Accordion type="multiple" defaultValue={inProgressSteps.map(s => s.id).concat(upcomingSteps.map(s => s.id))} className="space-y-4">
+                    {/* Completed Steps - Collapsed by default */}
+                    {completedSteps.map((step) => (
+                      <AccordionItem key={step.id} value={step.id} className="border border-green-500/20 rounded-lg px-4">
+                        <AccordionTrigger className="hover:no-underline">
+                          <div className="flex items-center gap-4 w-full">
+                            <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+                              <CheckCircle2 className="w-6 h-6 text-white" />
+                            </div>
+                            <div className="flex-1 text-left">
+                              <div className="flex items-center gap-3">
+                                <span className="font-semibold text-sm text-muted-foreground">Step {step.step_number}</span>
+                                <Badge variant="outline" className={getStatusColor(step.status)}>
+                                  Completed
+                                </Badge>
                               </div>
-
-                              {/* Step content */}
-                              <div className="flex-1 pb-6">
-                                <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                                  <div className="flex items-start justify-between gap-4 mb-3">
-                                    <div className="flex-1">
-                                      <h4 className="font-sans text-xl font-semibold mb-1">
-                                        {step.title}
-                                      </h4>
-                                      {step.scheduled_date && (
-                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                          <Calendar className="w-4 h-4" />
-                                          {formatDate(step.scheduled_date)}
-                                        </div>
-                                      )}
-                                    </div>
-                                    <Badge variant="outline" className={getStatusColor(step.status)}>
-                                      <span className="flex items-center gap-1.5">
-                                        {getStatusIcon(step.status)}
-                                        {step.status.replace('_', ' ')}
-                                      </span>
-                                    </Badge>
-                                  </div>
-
-                                  {step.description && (
-                                    <p className="text-muted-foreground mb-4 leading-relaxed">
-                                      {step.description}
-                                    </p>
-                                  )}
-
-                                  {/* Instructions for upcoming and in-progress steps */}
-                                  {step.instructions && (step.status === 'upcoming' || step.status === 'in_progress') && (
-                                    <div className="mt-4 p-4 bg-accent/5 border border-accent/20 rounded-lg">
-                                      <div className="flex items-start gap-2 mb-2">
-                                        <AlertCircle className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                                        <h5 className="font-semibold text-accent">Instructions from Your Doctor</h5>
-                                      </div>
-                                      <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap pl-7">
-                                        {step.instructions}
-                                      </p>
-                                    </div>
-                                  )}
-
-                                  {step.status === 'completed' && step.completed_at && (
-                                    <p className="text-sm text-green-600 mt-4">
-                                      ✓ Completed on {formatDate(step.completed_at)}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
+                              <h4 className="font-sans text-lg font-semibold mt-1">{step.title}</h4>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </>
-            )}
+                        </AccordionTrigger>
+                        <AccordionContent className="pl-14 pt-4">
+                          {step.description && <p className="text-sm text-muted-foreground mb-3">{step.description}</p>}
+                          {step.completed_at && (
+                            <p className="text-xs text-green-600">
+                              ✓ Completed on {new Date(step.completed_at).toLocaleDateString()}
+                            </p>
+                          )}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+
+                    {/* In Progress Steps - Expanded by default */}
+                    {inProgressSteps.map((step) => (
+                      <AccordionItem key={step.id} value={step.id} className="border border-blue-500/20 rounded-lg px-4 bg-blue-500/5">
+                        <AccordionTrigger className="hover:no-underline">
+                          <div className="flex items-center gap-4 w-full">
+                            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
+                              <Clock className="w-6 h-6 text-white" />
+                            </div>
+                            <div className="flex-1 text-left">
+                              <div className="flex items-center gap-3">
+                                <span className="font-semibold text-sm text-muted-foreground">Step {step.step_number}</span>
+                                <Badge variant="outline" className={getStatusColor(step.status)}>
+                                  In Progress
+                                </Badge>
+                              </div>
+                              <h4 className="font-sans text-lg font-semibold mt-1">{step.title}</h4>
+                              {step.scheduled_date && (
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  <Calendar className="w-3 h-3 inline mr-1" />
+                                  {new Date(step.scheduled_date).toLocaleDateString()}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="pl-14 pt-4 space-y-3">
+                          {step.description && <p className="text-sm text-muted-foreground">{step.description}</p>}
+                          {step.instructions && (
+                            <div className="p-4 bg-accent/10 border border-accent/20 rounded-lg">
+                              <p className="text-xs font-semibold text-accent mb-2">Doctor's Instructions:</p>
+                              <p className="text-sm whitespace-pre-wrap">{step.instructions}</p>
+                            </div>
+                          )}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+
+                    {/* Upcoming Steps - Expanded by default */}
+                    {upcomingSteps.map((step) => (
+                      <AccordionItem key={step.id} value={step.id} className="border border-border rounded-lg px-4">
+                        <AccordionTrigger className="hover:no-underline">
+                          <div className="flex items-center gap-4 w-full">
+                            <div className="w-10 h-10 rounded-full bg-muted border-2 border-border flex items-center justify-center shrink-0">
+                              <ArrowRight className="w-6 h-6 text-muted-foreground" />
+                            </div>
+                            <div className="flex-1 text-left">
+                              <div className="flex items-center gap-3">
+                                <span className="font-semibold text-sm text-muted-foreground">Step {step.step_number}</span>
+                                <Badge variant="outline" className={getStatusColor(step.status)}>
+                                  Upcoming
+                                </Badge>
+                              </div>
+                              <h4 className="font-sans text-lg font-semibold mt-1">{step.title}</h4>
+                              {step.scheduled_date && (
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  <Calendar className="w-3 h-3 inline mr-1" />
+                                  {new Date(step.scheduled_date).toLocaleDateString()}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="pl-14 pt-4 space-y-3">
+                          {step.description && <p className="text-sm text-muted-foreground">{step.description}</p>}
+                          {step.instructions && (
+                            <div className="p-4 bg-accent/10 border border-accent/20 rounded-lg">
+                              <p className="text-xs font-semibold text-accent mb-2">Preparation Instructions:</p>
+                              <p className="text-sm whitespace-pre-wrap">{step.instructions}</p>
+                            </div>
+                          )}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </main>
         

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { AdminMenu } from "@/components/AdminMenu";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,7 +60,7 @@ const categoryLabels: Record<InclusionCategory, string> = {
   other: "Other Services",
 };
 
-export default function PackagesAdminPage() {
+export default function AdminPackagesPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [packages, setPackages] = useState<Package[]>([]);
@@ -300,9 +301,11 @@ export default function PackagesAdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card">
-        <div className="container flex items-center justify-between py-4">
+    <div className="min-h-screen bg-background flex">
+      <AdminMenu />
+      
+      <main className="flex-1 p-8">
+        <div className="flex items-center justify-between mb-8">
           <h1 className="font-sans text-2xl font-bold text-primary">Package Management</h1>
           <div className="flex items-center gap-4">
             <Link href="/admin/patients">
@@ -320,9 +323,7 @@ export default function PackagesAdminPage() {
             </Button>
           </div>
         </div>
-      </header>
 
-      <main className="container py-12">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Dental Tourism Packages</CardTitle>

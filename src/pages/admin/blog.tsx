@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { AdminMenu } from "@/components/AdminMenu";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -138,9 +139,11 @@ export default function AdminBlog() {
   if (loading) return <div className="p-8 text-center">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="bg-card border-b border-border py-4">
-        <div className="container flex items-center justify-between">
+    <div className="min-h-screen bg-background flex">
+      <AdminMenu />
+      
+      <main className="flex-1 p-8">
+        <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Link href="/admin/patients">
               <Button variant="ghost" size="icon">
@@ -240,9 +243,7 @@ export default function AdminBlog() {
             </DialogContent>
           </Dialog>
         </div>
-      </header>
 
-      <main className="container py-8">
         <Card>
           <CardHeader>
             <CardTitle>All Posts</CardTitle>

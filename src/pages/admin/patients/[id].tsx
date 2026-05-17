@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { AdminMenu } from "@/components/AdminMenu";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -159,7 +160,21 @@ export default function PatientDetailPage() {
     setSaving(true);
 
     try {
-      await patientService.updatePatient(patient.id, formData);
+      // Ensure all formData fields are included in the update
+      await patientService.updatePatient(patient.id, {
+        full_name: formData.full_name,
+        email: formData.email,
+        phone: formData.phone,
+        treatment_interest: formData.treatment_interest,
+        arrival_date: formData.arrival_date || null,
+        departure_date: formData.departure_date || null,
+        accommodation_notes: formData.accommodation_notes,
+        work_notes: formData.work_notes,
+        payment_total_notes: formData.payment_total_notes,
+        payment_first_notes: formData.payment_first_notes,
+        payment_second_notes: formData.payment_second_notes,
+        status: formData.status, // Explicitly include status
+      } as any);
       toast({ title: "Patient updated successfully" });
       loadPatientData(patient.id);
     } catch (error) {
@@ -411,10 +426,10 @@ export default function PatientDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <div className="min-h-screen bg-background flex">
+      <AdminMenu />
       
-      <main className="container py-8">
+      <main className="flex-1 p-8">
         <Link href="/admin/patients">
           <Button variant="ghost" className="mb-6 gap-2">
             <ArrowLeft className="w-4 h-4" />

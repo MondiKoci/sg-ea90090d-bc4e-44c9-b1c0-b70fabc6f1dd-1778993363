@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { AdminMenu } from "@/components/AdminMenu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -219,16 +220,17 @@ export default function AdminTreatmentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <header className="mb-8">
-        <Link href="/admin/patients">
-          <Button variant="ghost" className="mb-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Admin
-          </Button>
-        </Link>
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Treatments Management</h1>
+    <div className="min-h-screen bg-background flex">
+      <AdminMenu />
+      
+      <main className="flex-1 p-8">
+        <div className="flex items-center justify-between mb-8">
+          <Link href="/admin/patients">
+            <Button variant="ghost" className="mb-4">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Admin
+            </Button>
+          </Link>
           <Dialog open={isDialogOpen} onOpenChange={(open) => {
             setIsDialogOpen(open);
             if (!open) resetForm();
@@ -473,65 +475,6 @@ export default function AdminTreatmentsPage() {
             </DialogContent>
           </Dialog>
         </div>
-      </header>
-
-      <main>
-        <Card>
-          <CardHeader>
-            <CardTitle>All Treatments ({treatments.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Order</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Savings</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {treatments.map((treatment) => (
-                  <TableRow key={treatment.id}>
-                    <TableCell>{treatment.display_order}</TableCell>
-                    <TableCell className="font-medium">{treatment.title}</TableCell>
-                    <TableCell>{treatment.category || "-"}</TableCell>
-                    <TableCell>
-                      {treatment.savings_percentage ? `${treatment.savings_percentage}%` : "-"}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          checked={treatment.published}
-                          onCheckedChange={() => handleTogglePublish(treatment)}
-                        />
-                        <Badge variant={treatment.published ? "default" : "secondary"}>
-                          {treatment.published ? "Published" : "Draft"}
-                        </Badge>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={() => handleEdit(treatment)}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleDelete(treatment.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
       </main>
     </div>
   );
