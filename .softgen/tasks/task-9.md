@@ -1,6 +1,6 @@
 ---
 title: Destinations package builder
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [admin, packages, cms]
