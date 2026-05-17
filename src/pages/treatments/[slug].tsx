@@ -11,6 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { treatmentService } from "@/services/treatmentService";
 import type { Treatment } from "@/services/treatmentService";
 import { CheckCircle2, Clock, Calendar, Shield, ArrowLeft, Image as ImageIcon } from "lucide-react";
+import Head from "next/head";
 
 export default function TreatmentDetailPage() {
   const router = useRouter();
@@ -60,6 +61,14 @@ export default function TreatmentDetailPage() {
     );
   }
 
+  const schemaMarkup = {
+    "@context": "https://schema.org",
+    "@type": "MedicalProcedure",
+    "name": treatment.title,
+    "description": treatment.meta_description || treatment.short_description,
+    "image": treatment.featured_image_url,
+  };
+
   return (
     <>
       <SEO 
@@ -67,6 +76,9 @@ export default function TreatmentDetailPage() {
         description={treatment.meta_description || treatment.short_description || `Learn about ${treatment.title} at Elite Dental Tourism.`}
         image={treatment.featured_image_url || undefined}
       />
+      <Head>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }} />
+      </Head>
       <div className="min-h-screen bg-background flex flex-col">
         <Navigation />
         
@@ -208,12 +220,12 @@ export default function TreatmentDetailPage() {
               )}
 
               {/* FAQ */}
-              {treatment.faq && Array.isArray(treatment.faq) && treatment.faq.length > 0 && (
+              {treatment.faq && Array.isArray(treatment.faq) && (treatment.faq as any[]).length > 0 && (
                 <div className="space-y-6">
                   <h2 className="font-sans text-3xl font-bold">Frequently Asked Questions</h2>
                   <Accordion type="single" collapsible className="w-full bg-card rounded-xl border border-border px-4 py-2">
-                    {treatment.faq.map((item: any, i: number) => (
-                      <AccordionItem key={i} value={`faq-${i}`} className={i === treatment.faq.length - 1 ? "border-b-0" : ""}>
+                    {(treatment.faq as any[]).map((item: any, i: number) => (
+                      <AccordionItem key={i} value={`faq-${i}`} className={i === (treatment.faq as any[]).length - 1 ? "border-b-0" : ""}>
                         <AccordionTrigger className="text-left text-lg font-semibold hover:text-primary transition-colors">
                           {item.question}
                         </AccordionTrigger>
@@ -226,6 +238,28 @@ export default function TreatmentDetailPage() {
                 </div>
               )}
 
+            </div>
+          </section>
+
+          {/* CTA Section */}
+          <section className="py-20 bg-card border-t border-border">
+            <div className="container max-w-4xl text-center space-y-8">
+              <h2 className="font-sans text-3xl md:text-4xl font-bold">Ready to Transform Your Smile?</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Book a free consultation today and discover how we can help you achieve the smile you've always wanted at a fraction of the cost.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Link href="/#book">
+                  <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 px-8 py-6 text-lg shadow-lg">
+                    Book Free Consultation
+                  </Button>
+                </Link>
+                <Link href="/#treatments">
+                  <Button size="lg" variant="outline" className="px-8 py-6 text-lg">
+                    View All Treatments
+                  </Button>
+                </Link>
+              </div>
             </div>
           </section>
         </main>
