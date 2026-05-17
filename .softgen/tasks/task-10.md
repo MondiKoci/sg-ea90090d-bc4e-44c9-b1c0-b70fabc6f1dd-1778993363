@@ -1,6 +1,6 @@
 ---
 title: Add imagery and visual enhancements
-status: in_progress
+status: done
 priority: medium
 type: feature
 tags: [design, frontend]
