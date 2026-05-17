@@ -1,12 +1,31 @@
-import React from 'react'
+import { Navigation } from "@/components/Navigation";
+import { Hero } from "@/components/Hero";
+import { Treatments } from "@/components/Treatments";
+import { WhyChooseUs } from "@/components/WhyChooseUs";
+import { Testimonials } from "@/components/Testimonials";
+import { Destination } from "@/components/Destination";
+import { Footer } from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center">
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-foreground">Hello World</h1>
-        <p className="text-lg text-muted-foreground">This is going to be your softgen app, start by describing your project.</p>
+    <>
+      <SEO 
+        title="DentalDestination - Premium Dental Tourism at 70% Lower Cost"
+        description="World-class dental implants, veneers, and treatments abroad. Save 60-70% with internationally trained specialists. ISO certified facility with comprehensive care packages."
+        image="/og-image.png"
+      />
+      <div className="min-h-screen">
+        <Navigation />
+        <main>
+          <Hero />
+          <Treatments />
+          <WhyChooseUs />
+          <Testimonials />
+          <Destination />
+        </main>
+        <Footer />
       </div>
-    </main>
-  )
+    </>
+  );
 }

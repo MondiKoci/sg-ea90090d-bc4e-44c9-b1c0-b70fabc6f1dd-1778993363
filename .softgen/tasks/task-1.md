@@ -17,12 +17,12 @@ Brand color: #243444 (deep slate blue). Palette: slate primary + champagne gold 
 ## Checklist
 - [x] Design system setup (globals.css colors, tailwind.config.ts fonts)
 - [x] Navigation header with clinic name, menu, consultation CTA
-- [ ] Hero section: headline emphasizing quality care + savings, subheadline, dual CTAs (consultation + learn more), trust badges (certifications, patient count)
-- [ ] Featured treatments grid (4-6 treatments: implants, veneers, crowns, full reconstruction, whitening, root canal) with brief descriptions
-- [ ] Why Choose Us section: 3 key value props (cost savings %, quality credentials, comprehensive care package)
-- [ ] Initial patient testimonials (2-3 quotes with names, countries, procedures)
-- [ ] Destination highlights: location appeal, accommodation support, travel coordination
-- [ ] Footer with quick links, contact info, certifications
+- [x] Hero section: headline emphasizing quality care + savings, subheadline, dual CTAs (consultation + learn more), trust badges (certifications, patient count)
+- [x] Featured treatments grid (4-6 treatments: implants, veneers, crowns, full reconstruction, whitening, root canal) with brief descriptions
+- [x] Why Choose Us section: 3 key value props (cost savings %, quality credentials, comprehensive care package)
+- [x] Initial patient testimonials (2-3 quotes with names, countries, procedures)
+- [x] Destination highlights: location appeal, accommodation support, travel coordination
+- [x] Footer with quick links, contact info, certifications
 
 ## Acceptance
 - Homepage loads with complete sections from header to footer
