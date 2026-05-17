@@ -9,42 +9,48 @@ const treatments = [
     title: "Dental Implants",
     description: "Permanent tooth replacement with titanium implants and custom crowns. Natural look and function.",
     priceRange: "$800-1,200",
-    savings: "Save $3,000+"
+    savings: "Save $3,000+",
+    imageAlt: "Dental implant procedure"
   },
   {
     icon: Crown,
     title: "Porcelain Veneers",
     description: "Transform your smile with ultra-thin ceramic shells. Perfect for chips, gaps, and discoloration.",
     priceRange: "$250-400",
-    savings: "Save $800+"
+    savings: "Save $800+",
+    imageAlt: "Porcelain veneers"
   },
   {
     icon: Smile,
     title: "Full Mouth Reconstruction",
     description: "Comprehensive smile makeover combining multiple procedures for complete dental restoration.",
     priceRange: "$8,000-15,000",
-    savings: "Save $25,000+"
+    savings: "Save $25,000+",
+    imageAlt: "Full mouth reconstruction"
   },
   {
     icon: Activity,
     title: "Root Canal Treatment",
     description: "Pain-free endodontic therapy using advanced techniques. Save your natural tooth.",
     priceRange: "$180-300",
-    savings: "Save $600+"
+    savings: "Save $600+",
+    imageAlt: "Root canal treatment"
   },
   {
     icon: Scissors,
     title: "Teeth Whitening",
     description: "Professional bleaching for a brighter smile. Results up to 8 shades lighter.",
     priceRange: "$150-250",
-    savings: "Save $400+"
+    savings: "Save $400+",
+    imageAlt: "Teeth whitening"
   },
   {
     icon: Shield,
     title: "Dental Crowns & Bridges",
     description: "High-quality ceramic restorations. Restore function and aesthetics seamlessly.",
     priceRange: "$300-600",
-    savings: "Save $900+"
+    savings: "Save $900+",
+    imageAlt: "Dental crowns"
   }
 ];
 
@@ -71,13 +77,29 @@ export function Treatments() {
                 key={index} 
                 className="border-border bg-card hover:border-accent/50 hover:shadow-2xl transition-all duration-300 group overflow-hidden"
               >
-                <CardHeader className="space-y-4">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                    <Icon className="w-7 h-7 text-accent" />
+                {/* Treatment Image Placeholder */}
+                <div className="relative aspect-video bg-gradient-to-br from-primary/10 via-accent/5 to-primary/5 overflow-hidden">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center space-y-2 p-6">
+                      <Icon className="w-12 h-12 text-primary/40 mx-auto" />
+                      <p className="text-xs text-muted-foreground font-medium">
+                        {treatment.imageAlt}
+                      </p>
+                    </div>
                   </div>
-                  <CardTitle className="font-sans text-2xl group-hover:text-primary transition-colors">
-                    {treatment.title}
-                  </CardTitle>
+                  {/* Overlay gradient on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-card/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+
+                <CardHeader className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                      <Icon className="w-6 h-6 text-accent" />
+                    </div>
+                    <CardTitle className="font-sans text-xl group-hover:text-primary transition-colors">
+                      {treatment.title}
+                    </CardTitle>
+                  </div>
                   <CardDescription className="text-sm text-muted-foreground leading-relaxed">
                     {treatment.description}
                   </CardDescription>

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { packageService } from "@/services/packageService";
 import type { Package, PackageInclusion } from "@/services/packageService";
-import { CheckCircle2, MapPin, Calendar, DollarSign, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle2, MapPin, Calendar, DollarSign, ChevronDown, ChevronUp, Palmtree } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const categoryLabels: Record<string, string> = {
@@ -54,7 +54,7 @@ export function PackagesSection() {
   if (loading || packages.length === 0) return null;
 
   return (
-    <section id="packages" className="py-24 md:py-32 bg-card">
+    <section id="packages" className="py-24 md:py-32 bg-background">
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-20">
           <h2 className="font-sans text-4xl md:text-5xl font-bold text-foreground mb-6">
@@ -83,23 +83,35 @@ export function PackagesSection() {
             return (
               <Card 
                 key={pkg.id} 
-                className="border-border hover:border-accent/50 hover:shadow-2xl transition-all duration-300 group overflow-hidden flex flex-col"
+                className="border-border hover:border-accent/50 hover:shadow-2xl transition-all duration-300 group overflow-hidden flex flex-col bg-card"
               >
-                <CardHeader className="space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-2">
-                      <Badge variant="outline" className="font-sans text-xs">
-                        <MapPin className="w-3 h-3 mr-1" />
-                        {pkg.destination}
-                      </Badge>
-                      {premiumCount > 0 && (
-                        <Badge className="ml-2 bg-accent/20 text-accent border-accent/30">
-                          Premium
-                        </Badge>
-                      )}
+                {/* Destination Image Placeholder */}
+                <div className="relative aspect-[16/9] bg-gradient-to-br from-primary/15 via-accent/10 to-primary/5">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center space-y-2 p-6">
+                      <Palmtree className="w-10 h-10 text-primary/40 mx-auto" />
+                      <p className="text-xs font-medium text-muted-foreground">
+                        {pkg.destination} destination photo
+                      </p>
                     </div>
                   </div>
+                  {/* Destination badge overlay */}
+                  <div className="absolute top-4 left-4">
+                    <Badge variant="secondary" className="font-sans text-xs bg-card/95 backdrop-blur-sm shadow-lg">
+                      <MapPin className="w-3 h-3 mr-1" />
+                      {pkg.destination}
+                    </Badge>
+                  </div>
+                  {premiumCount > 0 && (
+                    <div className="absolute top-4 right-4">
+                      <Badge className="bg-accent/95 text-accent-foreground border-accent/30 backdrop-blur-sm shadow-lg">
+                        Premium
+                      </Badge>
+                    </div>
+                  )}
+                </div>
 
+                <CardHeader className="space-y-4">
                   <CardTitle className="font-sans text-2xl group-hover:text-primary transition-colors">
                     {pkg.name}
                   </CardTitle>
@@ -153,7 +165,7 @@ export function PackagesSection() {
                       variant="ghost"
                       size="sm"
                       onClick={() => toggleExpanded(pkg.id)}
-                      className="w-full justify-between"
+                      className="w-full justify-between hover:bg-accent/5"
                     >
                       <span className="font-semibold">
                         {isExpanded ? "Hide" : "Show"} Package Details
@@ -189,7 +201,7 @@ export function PackagesSection() {
                   </div>
 
                   <Button 
-                    className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-sans font-semibold mt-4"
+                    className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-sans font-semibold mt-4 shadow-md hover:shadow-lg transition-all"
                     onClick={() => {
                       const bookingSection = document.getElementById('book');
                       bookingSection?.scrollIntoView({ behavior: 'smooth' });

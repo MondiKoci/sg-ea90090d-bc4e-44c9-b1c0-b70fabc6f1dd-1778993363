@@ -13,12 +13,12 @@ position: 10
 Enhance the visual design by adding placeholder images throughout key sections. Images demonstrate where real photos will be placed while maintaining proper aspect ratios and responsive design.
 
 ## Checklist
-- [ ] Add hero background image or featured image
-- [ ] Add treatment procedure images to treatment cards
-- [ ] Add destination/clinic photos to Destination section
-- [ ] Add facility images to Why Choose Us section
-- [ ] Enhance packages with destination imagery
-- [ ] Add visual depth with background patterns or gradients
+- [x] Add hero background image or featured image
+- [x] Add treatment procedure images to treatment cards
+- [x] Add destination/clinic photos to Destination section
+- [x] Add facility images to Why Choose Us section
+- [x] Enhance packages with destination imagery
+- [x] Add visual depth with background patterns or gradients
 
 ## Acceptance
 - All sections have appropriate placeholder imagery
