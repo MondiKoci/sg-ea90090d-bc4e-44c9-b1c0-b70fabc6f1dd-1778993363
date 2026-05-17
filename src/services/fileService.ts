@@ -1,52 +1,104 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
 
-export type PatientFile = Tables<"patient_files">;
+export interface PatientDocument {
+  id: string;
+  patient_id: string;
+  file_name: string;
+  file_path: string;
+  file_size: number;
+  file_type: string;
+  document_type: "medical_record" | "id_document" | "insurance" | "other";
+  uploaded_by: string;
+  uploaded_at: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export const fileService = {
-  // Upload file to storage
-  async uploadFile(patientId: string, file: File, fileType: "quote" | "receipt" | "document" | "other") {
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${patientId}/${Date.now()}.${fileExt}`;
-    
-    // Upload to storage
-    const { error: uploadError } = await supabase.storage
-      .from("patient-documents")
-      .upload(fileName, file);
+  // Upload file to storage and create document record
+  async uploadDocument(
+    patientId: string,
+    file: File,
+    documentType: PatientDocument["document_type"],
+    uploadedBy: string,
+    notes?: string
+  ): Promise<PatientDocument> {
+    try {
+      // Generate unique file path
+      const timestamp = Date.now();
+      const fileName = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+      const filePath = `${patientId}/${fileName}`;
 
-    if (uploadError) throw uploadError;
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("patient-documents")
+        .upload(filePath, file);
 
-    // Create file record in database
-    const { data, error } = await supabase
-      .from("patient_files")
-      .insert({
-        patient_id: patientId,
-        file_name: file.name,
-        file_path: fileName,
-        file_type: fileType,
-        file_size: file.size,
-      })
-      .select()
-      .single();
+      if (uploadError) throw uploadError;
 
-    if (error) throw error;
-    return data;
+      // Create document record
+      const { data, error } = await supabase
+        .from("patient_documents")
+        .insert({
+          patient_id: patientId,
+          file_name: file.name,
+          file_path: uploadData.path,
+          file_size: file.size,
+          file_type: file.type,
+          document_type: documentType,
+          uploaded_by: uploadedBy,
+          notes,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as PatientDocument;
+    } catch (error) {
+      console.error("Upload error:", error);
+      throw error;
+    }
   },
 
-  // Get all files for a patient
-  async getPatientFiles(patientId: string) {
+  // Get all documents for a patient
+  async getPatientDocuments(patientId: string): Promise<PatientDocument[]> {
     const { data, error } = await supabase
-      .from("patient_files")
+      .from("patient_documents")
       .select("*")
       .eq("patient_id", patientId)
       .order("uploaded_at", { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as PatientDocument[];
   },
 
-  // Download file URL
-  async getFileUrl(filePath: string) {
+  // Get documents by email (for patient portal)
+  async getDocumentsByEmail(email: string): Promise<PatientDocument[]> {
+    // First get patient ID from email
+    const { data: patient } = await supabase
+      .from("patients")
+      .select("id")
+      .eq("email", email)
+      .single();
+
+    if (!patient) return [];
+
+    return this.getPatientDocuments(patient.id);
+  },
+
+  // Download file from storage
+  async downloadDocument(filePath: string): Promise<Blob> {
+    const { data, error } = await supabase.storage
+      .from("patient-documents")
+      .download(filePath);
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Get public URL for file preview
+  async getFileUrl(filePath: string): Promise<string> {
     const { data } = supabase.storage
       .from("patient-documents")
       .getPublicUrl(filePath);
@@ -54,40 +106,30 @@ export const fileService = {
     return data.publicUrl;
   },
 
-  // Get signed URL for private file access
-  async getSignedFileUrl(filePath: string, expiresIn = 3600) {
-    const { data, error } = await supabase.storage
+  // Delete document
+  async deleteDocument(documentId: string, filePath: string): Promise<void> {
+    // Delete from storage
+    const { error: storageError } = await supabase.storage
       .from("patient-documents")
-      .createSignedUrl(filePath, expiresIn);
+      .remove([filePath]);
+
+    if (storageError) throw storageError;
+
+    // Delete record
+    const { error } = await supabase
+      .from("patient_documents")
+      .delete()
+      .eq("id", documentId);
 
     if (error) throw error;
-    return data.signedUrl;
   },
 
-  // Delete file
-  async deleteFile(fileId: string) {
-    // First get the file path
-    const { data: file } = await supabase
-      .from("patient_files")
-      .select("file_path")
-      .eq("id", fileId)
-      .single();
-
-    if (file) {
-      // Delete from storage
-      const { error: storageError } = await supabase.storage
-        .from("patient-documents")
-        .remove([file.file_path]);
-
-      if (storageError) throw storageError;
-    }
-
-    // Delete database record
-    const { error } = await supabase
-      .from("patient_files")
-      .delete()
-      .eq("id", fileId);
-
-    if (error) throw error;
+  // Format file size for display
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
   },
 };

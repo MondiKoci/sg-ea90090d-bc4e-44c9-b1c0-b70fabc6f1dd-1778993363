@@ -396,6 +396,59 @@ export type Database = {
         }
         Relationships: []
       }
+      patient_documents: {
+        Row: {
+          created_at: string | null
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id: string
+          notes: string | null
+          patient_id: string
+          updated_at: string | null
+          uploaded_at: string | null
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string | null
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id?: string
+          notes?: string | null
+          patient_id: string
+          updated_at?: string | null
+          uploaded_at?: string | null
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string | null
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          updated_at?: string | null
+          uploaded_at?: string | null
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_documents_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patient_files: {
         Row: {
           file_name: string
