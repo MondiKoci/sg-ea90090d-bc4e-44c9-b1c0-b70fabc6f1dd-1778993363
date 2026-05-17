@@ -1,6 +1,6 @@
 ---
 title: Admin dashboard and patient management
-status: todo
+status: in_progress
 priority: high
 type: feature
 tags: [frontend, admin, dashboard]
@@ -13,15 +13,15 @@ position: 4
 Build comprehensive admin dashboard for managing patient records, files, payments, reminders, and sharing. Protected route requiring authentication.
 
 ## Checklist
-- [ ] Create /admin/patients page with patient list table
-- [ ] Create /admin/patients/[id] detail page with full patient information
-- [ ] Patient detail view: display all fields, edit mode, file uploads
-- [ ] File management: upload quotes/receipts, view/download, delete
-- [ ] Payment tracking UI: total amount, first payment, second payment with notes
-- [ ] Reminder system: add/edit/complete reminders for each patient
-- [ ] Sharing controls: add specific email addresses to share patient data
-- [ ] Admin authentication: simple email/password login page
-- [ ] Protected route wrapper for admin pages
+- [x] Create /admin/patients page with patient list table
+- [x] Create /admin/patients/[id] detail page with full patient information
+- [x] Patient detail view: display all fields, edit mode, file uploads
+- [x] File management: upload quotes/receipts, view/download, delete
+- [x] Payment tracking UI: total amount, first payment, second payment with notes
+- [x] Reminder system: add/edit/complete reminders for each patient
+- [x] Sharing controls: add specific email addresses to share patient data
+- [x] Admin authentication: simple email/password login page
+- [x] Protected route wrapper for admin pages
 
 ## Acceptance
 - Admin can log in and access dashboard
