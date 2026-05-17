@@ -24,7 +24,8 @@ import {
   AlertCircle,
   ArrowRight,
   Loader2,
-  DollarSign
+  DollarSign,
+  Settings
 } from "lucide-react";
 
 export default function PatientDashboard() {
@@ -126,6 +127,12 @@ export default function PatientDashboard() {
               </div>
               <div className="flex items-center gap-2">
                 <NotificationBell userType="patient" userEmail={session?.email || ""} />
+                <Link href="/portal/settings">
+                  <Button variant="outline" className="gap-2">
+                    <Settings className="w-4 h-4" />
+                    Settings
+                  </Button>
+                </Link>
                 <Button onClick={handleLogout} variant="outline" className="gap-2">
                   <LogOut className="w-4 h-4" />
                   Sign Out

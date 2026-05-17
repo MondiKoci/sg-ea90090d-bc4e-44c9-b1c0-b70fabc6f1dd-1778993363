@@ -235,6 +235,39 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          created_at: string | null
+          email_notifications: boolean | null
+          id: string
+          invoice_notifications: boolean | null
+          marketing_emails: boolean | null
+          patient_email: string
+          treatment_update_notifications: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          invoice_notifications?: boolean | null
+          marketing_emails?: boolean | null
+          patient_email: string
+          treatment_update_notifications?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          invoice_notifications?: boolean | null
+          marketing_emails?: boolean | null
+          patient_email?: string
+          treatment_update_notifications?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string | null

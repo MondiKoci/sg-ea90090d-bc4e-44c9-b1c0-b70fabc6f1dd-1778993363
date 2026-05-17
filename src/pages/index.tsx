@@ -13,11 +13,15 @@ import { SEO } from "@/components/SEO";
 export default function Home() {
   return (
     <>
-      <SEO 
-        title="Premium Dental Tourism - World-Class Care, Exceptional Savings"
-        description="Experience world-class dental treatments at up to 70% savings. ISO-certified facility, expert dentists, complete care package with accommodation and travel support."
+      <SEO
+        title="Elite Dental Tourism - Premium Dental Care Abroad"
+        description="Experience world-class dental care at up to 70% savings. Elite Dental Tourism offers premium dental treatments including implants, veneers, and full mouth reconstruction with complete travel support and luxury accommodations."
+        image="/og-image.png"
+        url="/"
+        type="website"
+        keywords="dental tourism, affordable dental implants, dental veneers abroad, cosmetic dentistry, medical tourism, international dental care, save on dental work"
       />
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <Navigation />
         <main>
           <Hero />
@@ -27,14 +31,7 @@ export default function Home() {
           <BeforeAfterGallery />
           <PackagesSection />
           <Destination />
-          
-          <section id="book" className="py-24 px-4">
-            <div className="container">
-              <div className="max-w-2xl mx-auto">
-                <BookingForm />
-              </div>
-            </div>
-          </section>
+          <BookingForm />
         </main>
         <Footer />
       </div>
