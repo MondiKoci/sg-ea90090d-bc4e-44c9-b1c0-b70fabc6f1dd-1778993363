@@ -8,8 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { patientService } from "@/services/patientService";
 import { packageService } from "@/services/packageService";
 import type { Package } from "@/services/packageService";
-import { Calendar, Mail, Phone, User, FileText, Package as PackageIcon } from "lucide-react";
+import { Calendar, Mail, Phone, User, FileText, Package as PackageIcon, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { notificationService } from "@/services/notificationService";
 
 export function BookingForm() {
   const { toast } = useToast();
@@ -59,10 +60,17 @@ export function BookingForm() {
         work_notes: packageInfo + formData.message,
       });
 
+      // Notify admins about new booking
+      await notificationService.notifyAdminBooking(
+        formData.full_name,
+        formData.email || "No email provided",
+        formData.treatment_interest || "Not specified"
+      );
+
       setSubmitted(true);
       toast({
-        title: "Booking request received!",
-        description: "We'll contact you within 24 hours to confirm your appointment.",
+        title: "Booking submitted successfully!",
+        description: "We'll contact you soon to confirm your appointment.",
       });
     } catch (error) {
       toast({

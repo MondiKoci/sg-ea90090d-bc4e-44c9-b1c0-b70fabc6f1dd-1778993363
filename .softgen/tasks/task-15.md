@@ -1,6 +1,6 @@
 ---
 title: In-app notification system
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [notifications, alerts, patient, admin]
@@ -13,15 +13,15 @@ position: 15
 Build a real-time notification system for patients and admins. Patients get notified when invoices are issued. Admins get notified when patients submit booking forms.
 
 ## Checklist
-- [ ] Create notifications database table
-- [ ] Create notification service with CRUD operations
-- [ ] Add notification bell component for patient portal
-- [ ] Add notification bell component for admin dashboard
-- [ ] Integrate with invoice creation (notify patient)
-- [ ] Integrate with booking form submission (notify admin)
-- [ ] Add mark as read functionality
-- [ ] Add notification count badges
-- [ ] Add notification list dropdown
+- [x] Create notifications database table
+- [x] Create notification service with CRUD operations
+- [x] Add notification bell component for patient portal
+- [x] Add notification bell component for admin dashboard
+- [x] Integrate with invoice creation (notify patient)
+- [x] Integrate with booking form submission (notify admin)
+- [x] Add mark as read functionality
+- [x] Add notification count badges
+- [x] Add notification list dropdown
 
 ## Acceptance
 - Patients see notification bell in portal

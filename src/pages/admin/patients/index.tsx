@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { AdminMenu } from "@/components/AdminMenu";
+import { NotificationBell } from "@/components/NotificationBell";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -68,10 +69,13 @@ export default function AdminPatients() {
               <h1 className="font-sans text-2xl font-bold text-primary">Patient Management</h1>
               <p className="text-sm text-muted-foreground">Elite Dental Tourism Admin</p>
             </div>
-            <Button onClick={handleLogout} variant="outline" size="sm">
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+            <div className="flex items-center gap-2">
+              <NotificationBell userType="admin" userEmail="admin@elitedental.com" />
+              <Button onClick={handleLogout} variant="outline" size="sm">
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </div>
         </header>
 

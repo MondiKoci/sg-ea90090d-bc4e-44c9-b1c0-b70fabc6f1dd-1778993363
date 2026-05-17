@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { AdminMenu } from "@/components/AdminMenu";
-import { Navigation } from "@/components/Navigation";
+import { NotificationBell } from "@/components/NotificationBell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { invoiceService } from "@/services/invoiceService";
 import { patientService } from "@/services/patientService";
+import { notificationService } from "@/services/notificationService";
 import type { InvoiceWithItems } from "@/services/invoiceService";
 import type { Patient } from "@/services/patientService";
 import { useToast } from "@/hooks/use-toast";
@@ -165,12 +166,36 @@ export default function AdminInvoicesPage() {
     }
   };
 
-  const handleSendInvoice = async (invoiceId: string) => {
-    if (!confirm("Send this invoice to the patient?")) return;
-
+  const handleSendToPatient = async (invoiceId: string) => {
     try {
-      await invoiceService.sendInvoice(invoiceId);
-      toast({ title: "Invoice sent to patient" });
+      // Get invoice and patient details
+      const invoice = invoices.find(inv => inv.id === invoiceId);
+      if (!invoice) return;
+
+      const patient = await patientService.getPatientById(invoice.patient_id);
+      if (!patient?.email) {
+        toast({
+          title: "Cannot send invoice",
+          description: "Patient email not found",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update invoice status to sent
+      await invoiceService.updateInvoice(invoiceId, {
+        status: "sent",
+        sent_at: new Date().toISOString(),
+      });
+
+      // Create notification for patient
+      await notificationService.notifyPatientInvoice(
+        patient.email,
+        invoice.invoice_number,
+        invoice.id
+      );
+
+      toast({ title: `Invoice sent to ${patient.email}` });
       loadData();
     } catch (error) {
       toast({
@@ -244,10 +269,13 @@ export default function AdminInvoicesPage() {
             <h1 className="font-sans text-4xl font-bold mb-2">Invoices</h1>
             <p className="text-muted-foreground">Manage patient invoices and payments</p>
           </div>
-          <Button onClick={() => handleOpenDialog()} className="gap-2">
-            <Plus className="w-4 h-4" />
-            Create Invoice
-          </Button>
+          <div className="flex items-center gap-2">
+            <NotificationBell userType="admin" userEmail="admin@elitedental.com" />
+            <Button onClick={() => handleOpenDialog()} className="gap-2">
+              <Plus className="w-4 h-4" />
+              Create Invoice
+            </Button>
+          </div>
         </div>
 
         <Card>
@@ -321,7 +349,7 @@ export default function AdminInvoicesPage() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                onClick={() => handleSendInvoice(invoice.id)}
+                                onClick={() => handleSendToPatient(invoice.id)}
                               >
                                 <Send className="w-4 h-4 text-blue-600" />
                               </Button>

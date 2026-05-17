@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { NotificationBell } from "@/components/NotificationBell";
 import { patientAuthService } from "@/services/patientAuthService";
 import { treatmentStepService } from "@/services/treatmentStepService";
 import { invoiceService } from "@/services/invoiceService";
@@ -123,10 +124,13 @@ export default function PatientDashboard() {
                 </h1>
                 <p className="text-muted-foreground">Track your treatment journey and stay informed</p>
               </div>
-              <Button onClick={handleLogout} variant="outline" className="gap-2">
-                <LogOut className="w-4 h-4" />
-                Sign Out
-              </Button>
+              <div className="flex items-center gap-2">
+                <NotificationBell userType="patient" userEmail={session?.email || ""} />
+                <Button onClick={handleLogout} variant="outline" className="gap-2">
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </Button>
+              </div>
             </div>
 
             {/* Progress Overview */}
