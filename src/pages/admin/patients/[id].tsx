@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { patientService, type Patient, type PatientUpdate } from "@/services/patientService";
 import { fileService, type PatientFile } from "@/services/fileService";
-import { reminderService, type Reminder } from "@/services/reminderService";
+import { reminderService, type PatientReminder } from "@/services/reminderService";
 import { sharingService, type PatientShare } from "@/services/sharingService";
 import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
@@ -37,12 +37,12 @@ export default function PatientDetail() {
   const [uploading, setUploading] = useState(false);
 
   // Reminders
-  const [reminders, setReminders] = useState<Reminder[]>([]);
-  const [newReminder, setNewReminder] = useState({ title: "", due_date: "", notes: "" });
+  const [reminders, setReminders] = useState<PatientReminder[]>([]);
+  const [newReminder, setNewReminder] = useState({ title: "", due_date: "" });
 
   // Sharing
   const [shares, setShares] = useState<PatientShare[]>([]);
-  const [newShare, setNewShare] = useState({ email: "", notes: "" });
+  const [newShare, setNewShare] = useState({ email: "" });
 
   useEffect(() => {
     checkAuth();
@@ -124,14 +124,14 @@ export default function PatientDetail() {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fileType: string) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fileType: "quote" | "receipt" | "document" | "other") => {
     if (!patient || !e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
     setUploading(true);
 
     try {
-      await fileService.uploadFile(patient.id, file, fileType, `${fileType} - ${file.name}`);
+      await fileService.uploadFile(patient.id, file, fileType);
       toast({
         title: "File uploaded",
         description: "File uploaded successfully.",
@@ -148,11 +148,11 @@ export default function PatientDetail() {
     }
   };
 
-  const handleDeleteFile = async (fileId: string) => {
+  const handleDeleteFile = async (fileId: string, filePath: string) => {
     if (!patient) return;
 
     try {
-      await fileService.deleteFile(fileId);
+      await fileService.deleteFile(fileId, filePath);
       toast({
         title: "File deleted",
         description: "File removed successfully.",
@@ -167,19 +167,39 @@ export default function PatientDetail() {
     }
   };
 
+  const handleDownloadFile = async (filePath: string, fileName: string) => {
+    try {
+      const url = await fileService.getFileUrl(filePath);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (error) {
+      toast({
+        title: "Download failed",
+        description: "Could not download file.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleAddReminder = async () => {
-    if (!patient || !newReminder.title || !newReminder.due_date) return;
+    if (!patient || !newReminder.title) return;
 
     try {
-      await reminderService.createReminder({
-        patient_id: patient.id,
-        ...newReminder,
-      });
+      await reminderService.createReminder(
+        patient.id,
+        newReminder.title,
+        newReminder.due_date || undefined
+      );
       toast({
         title: "Reminder added",
         description: "Reminder created successfully.",
       });
-      setNewReminder({ title: "", due_date: "", notes: "" });
+      setNewReminder({ title: "", due_date: "" });
       loadReminders(patient.id);
     } catch (error) {
       toast({
@@ -209,12 +229,12 @@ export default function PatientDetail() {
     if (!patient || !newShare.email) return;
 
     try {
-      await sharingService.sharePatientData(patient.id, newShare.email, newShare.notes || undefined);
+      await sharingService.sharePatientData(patient.id, newShare.email);
       toast({
         title: "Access granted",
         description: `Patient data shared with ${newShare.email}`,
       });
-      setNewShare({ email: "", notes: "" });
+      setNewShare({ email: "" });
       loadShares(patient.id);
     } catch (error) {
       toast({
@@ -229,7 +249,7 @@ export default function PatientDetail() {
     if (!patient) return;
 
     try {
-      await sharingService.revokeAccess(shareId);
+      await sharingService.removeShare(shareId);
       toast({
         title: "Access revoked",
         description: "Sharing access removed.",
@@ -535,14 +555,14 @@ export default function PatientDetail() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => fileService.downloadFile(file.file_path!, file.file_name!)}
+                              onClick={() => handleDownloadFile(file.file_path!, file.file_name!)}
                             >
                               <Download className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDeleteFile(file.id)}
+                              onClick={() => handleDeleteFile(file.id, file.file_path!)}
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
@@ -624,7 +644,7 @@ export default function PatientDetail() {
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label>Title</Label>
+                      <Label>Reminder Note</Label>
                       <Input
                         value={newReminder.title}
                         onChange={(e) => setNewReminder({ ...newReminder, title: e.target.value })}
@@ -640,15 +660,6 @@ export default function PatientDetail() {
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Notes</Label>
-                    <Textarea
-                      value={newReminder.notes}
-                      onChange={(e) => setNewReminder({ ...newReminder, notes: e.target.value })}
-                      placeholder="Additional details..."
-                      rows={2}
-                    />
-                  </div>
                   <Button onClick={handleAddReminder} className="bg-accent hover:bg-accent/90">
                     <Bell className="h-4 w-4 mr-2" />
                     Add Reminder
@@ -659,22 +670,21 @@ export default function PatientDetail() {
               <Card>
                 <CardHeader>
                   <CardTitle className="font-sans">Active Reminders</CardTitle>
-                  <CardDescription>{reminders.filter(r => !r.completed).length} active reminder(s)</CardDescription>
+                  <CardDescription>{reminders.filter(r => !r.is_completed).length} active reminder(s)</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {reminders.filter(r => !r.completed).length === 0 ? (
+                  {reminders.filter(r => !r.is_completed).length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-8">No active reminders</p>
                   ) : (
                     <div className="space-y-2">
-                      {reminders.filter(r => !r.completed).map((reminder) => (
+                      {reminders.filter(r => !r.is_completed).map((reminder) => (
                         <div key={reminder.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
                           <div className="flex items-center gap-3">
                             <Bell className="h-5 w-5 text-muted-foreground" />
                             <div>
-                              <p className="text-sm font-medium">{reminder.title}</p>
+                              <p className="text-sm font-medium">{reminder.reminder_text}</p>
                               <p className="text-xs text-muted-foreground">
-                                Due: {new Date(reminder.due_date!).toLocaleDateString()}
-                                {reminder.notes && ` • ${reminder.notes}`}
+                                Due: {reminder.reminder_date ? new Date(reminder.reminder_date).toLocaleDateString() : "No date"}
                               </p>
                             </div>
                           </div>
@@ -705,24 +715,14 @@ export default function PatientDetail() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label>Email Address</Label>
-                      <Input
-                        type="email"
-                        value={newShare.email}
-                        onChange={(e) => setNewShare({ ...newShare, email: e.target.value })}
-                        placeholder="colleague@example.com"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Access Notes</Label>
-                      <Input
-                        value={newShare.notes}
-                        onChange={(e) => setNewShare({ ...newShare, notes: e.target.value })}
-                        placeholder="Treatment coordinator, front desk..."
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label>Email Address</Label>
+                    <Input
+                      type="email"
+                      value={newShare.email}
+                      onChange={(e) => setNewShare({ ...newShare, email: e.target.value })}
+                      placeholder="colleague@example.com"
+                    />
                   </div>
                   <Button onClick={handleAddShare} className="bg-accent hover:bg-accent/90">
                     <Share2 className="h-4 w-4 mr-2" />
@@ -751,11 +751,8 @@ export default function PatientDetail() {
                             <Share2 className="h-5 w-5 text-muted-foreground" />
                             <div>
                               <p className="text-sm font-medium">{share.shared_with_email}</p>
-                              {share.notes && (
-                                <p className="text-xs text-muted-foreground">{share.notes}</p>
-                              )}
                               <p className="text-xs text-muted-foreground">
-                                Shared: {new Date(share.shared_at!).toLocaleDateString()}
+                                Shared: {new Date(share.created_at!).toLocaleDateString()}
                               </p>
                             </div>
                           </div>
