@@ -1,11 +1,11 @@
 ---
 title: Design improvements
-status: todo
+status: done
 priority: medium
 type: feature
-tags: [design, ui]
+tags: [design, frontend]
 created_by: agent
-created_at: 2026-05-17T03:41:00Z
+created_at: 2026-05-17T03:39:21Z
 position: 5
 ---
 

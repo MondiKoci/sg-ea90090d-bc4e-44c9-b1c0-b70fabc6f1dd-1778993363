@@ -1,11 +1,11 @@
 ---
 title: Before & After gallery with admin management
-status: todo
+status: done
 priority: high
 type: feature
-tags: [gallery, admin, database]
+tags: [gallery, admin, cms]
 created_by: agent
-created_at: 2026-05-17T03:41:00Z
+created_at: 2026-05-17T03:39:21Z
 position: 7
 ---
 

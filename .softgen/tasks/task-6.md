@@ -1,11 +1,11 @@
 ---
 title: Multilingual support (Italian & French)
-status: todo
+status: done
 priority: high
 type: feature
-tags: [i18n, translations]
+tags: [i18n, frontend]
 created_by: agent
-created_at: 2026-05-17T03:41:00Z
+created_at: 2026-05-17T03:39:21Z
 position: 6
 ---
 
