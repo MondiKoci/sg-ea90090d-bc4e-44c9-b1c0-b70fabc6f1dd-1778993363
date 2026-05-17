@@ -252,9 +252,9 @@ export default function AdminInvoicesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="flex items-center justify-center min-h-[60vh]">Loading...</div>
+      <div className="min-h-screen bg-background flex">
+        <AdminMenu />
+        <div className="flex-1 flex items-center justify-center">Loading...</div>
       </div>
     );
   }
