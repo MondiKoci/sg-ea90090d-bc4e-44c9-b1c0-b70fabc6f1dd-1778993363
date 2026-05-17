@@ -39,7 +39,7 @@ export default function AdminGallery() {
 
   const checkAuth = async () => {
     try {
-      const { session } = await authService.getSession();
+      const session = await authService.getCurrentSession();
       if (!session) {
         router.push("/admin/login");
         return;

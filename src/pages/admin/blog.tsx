@@ -37,7 +37,7 @@ export default function AdminBlog() {
 
   const checkAuth = async () => {
     try {
-      const { session } = await authService.getSession();
+      const session = await authService.getCurrentSession();
       if (!session) {
         router.push("/admin/login");
         return;
@@ -83,12 +83,16 @@ export default function AdminBlog() {
     }
 
     try {
+      const session = await authService.getCurrentSession();
       const slug = blogService.generateSlug(formData.title);
+      
       await blogService.createPost({
         ...formData,
         slug,
+        author: session?.user?.id,
         published_at: formData.published ? new Date().toISOString() : null,
-      });
+      } as any);
+      
       toast({ title: "Success", description: "Post added successfully" });
       setIsDialogOpen(false);
       setFormData({
