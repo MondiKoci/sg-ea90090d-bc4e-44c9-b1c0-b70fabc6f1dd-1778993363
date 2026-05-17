@@ -1,6 +1,6 @@
 ---
 title: Database schema and backend services
-status: in_progress
+status: done
 priority: urgent
 type: feature
 tags: [database, backend, supabase]

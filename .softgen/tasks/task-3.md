@@ -1,6 +1,6 @@
 ---
 title: Public booking form
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [frontend, forms]
