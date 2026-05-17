@@ -12,6 +12,7 @@ import {
   LogOut,
   BarChart3
 } from "lucide-react";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 export function AdminMenu() {
   const router = useRouter();
@@ -60,14 +61,20 @@ export function AdminMenu() {
         })}
       </nav>
 
-      <Button
-        variant="ghost"
-        onClick={handleLogout}
-        className="w-full justify-start gap-3 mt-auto text-destructive hover:text-destructive hover:bg-destructive/10"
-      >
-        <LogOut className="w-5 h-5" />
-        Logout
-      </Button>
+      <div className="mt-auto space-y-4 pt-6 border-t border-border">
+        <div className="flex items-center justify-between px-4 py-2 border border-border rounded-md">
+          <span className="text-sm font-medium">Theme</span>
+          <ThemeSwitch />
+        </div>
+        <Button
+          variant="ghost"
+          onClick={handleLogout}
+          className="w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10"
+        >
+          <LogOut className="w-5 h-5" />
+          Logout
+        </Button>
+      </div>
     </aside>
   );
 }

@@ -13,12 +13,11 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { patientService } from "@/services/patientService";
-import { fileService } from "@/services/fileService";
 import { reminderService } from "@/services/reminderService";
 import { sharingService } from "@/services/sharingService";
 import { treatmentStepService } from "@/services/treatmentStepService";
+import { FileUpload } from "@/components/FileUpload";
 import type { Patient } from "@/services/patientService";
-import type { PatientFile } from "@/services/fileService";
 import type { PatientReminder } from "@/services/reminderService";
 import type { PatientShare } from "@/services/sharingService";
 import type { TreatmentStep } from "@/services/treatmentStepService";
@@ -50,7 +49,6 @@ export default function PatientDetailPage() {
   const { toast } = useToast();
 
   const [patient, setPatient] = useState<Patient | null>(null);
-  const [files, setFiles] = useState<PatientFile[]>([]);
   const [reminders, setReminders] = useState<PatientReminder[]>([]);
   const [shares, setShares] = useState<PatientShare[]>([]);
   const [treatmentSteps, setTreatmentSteps] = useState<TreatmentStep[]>([]);
@@ -112,16 +110,14 @@ export default function PatientDetailPage() {
 
   const loadPatientData = async (patientId: string) => {
     try {
-      const [patientData, filesData, remindersData, sharesData, stepsData] = await Promise.all([
+      const [patientData, remindersData, sharesData, stepsData] = await Promise.all([
         patientService.getPatientById(patientId),
-        fileService.getPatientFiles(patientId),
         reminderService.getPatientReminders(patientId),
         sharingService.getPatientShares(patientId),
         treatmentStepService.getPatientSteps(patientId),
       ]);
 
       setPatient(patientData);
-      setFiles(filesData);
       setReminders(remindersData);
       setShares(sharesData);
       setTreatmentSteps(stepsData);
@@ -185,42 +181,6 @@ export default function PatientDetailPage() {
       });
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleFileUpload = async () => {
-    if (!patient || !uploadFile) return;
-    setUploading(true);
-
-    try {
-      await fileService.uploadFile(patient.id, uploadFile, uploadType as any);
-      toast({ title: "File uploaded successfully" });
-      setUploadDialogOpen(false);
-      setUploadFile(null);
-      loadPatientData(patient.id);
-    } catch (error) {
-      toast({
-        title: "Failed to upload file",
-        description: "Please try again",
-        variant: "destructive",
-      });
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleDeleteFile = async (fileId: string) => {
-    if (!patient) return;
-
-    try {
-      await fileService.deleteFile(fileId);
-      toast({ title: "File deleted" });
-      loadPatientData(patient.id);
-    } catch (error) {
-      toast({
-        title: "Failed to delete file",
-        variant: "destructive",
-      });
     }
   };
 
@@ -468,7 +428,7 @@ export default function PatientDetailPage() {
             </TabsTrigger>
             <TabsTrigger value="files">
               <FileText className="w-4 h-4 mr-2" />
-              Files ({files.length})
+              Documents
             </TabsTrigger>
             <TabsTrigger value="steps">
               <CheckCircle2 className="w-4 h-4 mr-2" />
@@ -579,6 +539,10 @@ export default function PatientDetailPage() {
           </TabsContent>
 
           {/* Keep existing tabs: work, payment, travel, files... */}
+
+          <TabsContent value="files">
+            <FileUpload patientId={patient.id} uploadedBy="Admin" />
+          </TabsContent>
 
           {/* Treatment Steps Tab */}
           <TabsContent value="steps">

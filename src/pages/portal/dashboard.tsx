@@ -13,6 +13,9 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { patientAuthService } from "@/services/patientAuthService";
 import { treatmentStepService } from "@/services/treatmentStepService";
 import { invoiceService } from "@/services/invoiceService";
+import { supabase } from "@/integrations/supabase/client";
+import { FileUpload } from "@/components/FileUpload";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 import type { TreatmentStep } from "@/services/treatmentStepService";
 import type { InvoiceWithItems } from "@/services/invoiceService";
 import { 
@@ -32,6 +35,7 @@ import {
 export default function PatientDashboard() {
   const router = useRouter();
   const [session, setSession] = useState<any>(null);
+  const [patientId, setPatientId] = useState<string | null>(null);
   const [steps, setSteps] = useState<TreatmentStep[]>([]);
   const [invoices, setInvoices] = useState<InvoiceWithItems[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +52,16 @@ export default function PatientDashboard() {
 
   const loadData = async (email: string) => {
     try {
+      const { data: patientData } = await supabase
+        .from("patients")
+        .select("id")
+        .eq("email", email)
+        .single();
+        
+      if (patientData) {
+        setPatientId(patientData.id);
+      }
+
       const [stepsData, invoicesData] = await Promise.all([
         treatmentStepService.getPatientStepsByEmail(email),
         invoiceService.getPatientInvoicesByEmail(email),
@@ -127,6 +141,7 @@ export default function PatientDashboard() {
                 <p className="text-muted-foreground">Track your treatment journey and stay informed</p>
               </div>
               <div className="flex items-center gap-2">
+                <ThemeSwitch />
                 <NotificationBell userType="patient" userEmail={session?.email || ""} />
                 <Link href="/portal/settings">
                   <Button variant="outline" className="gap-2">
@@ -367,6 +382,14 @@ export default function PatientDashboard() {
                 )}
               </CardContent>
             </Card>
+
+            {/* My Documents Section */}
+            {patientId && (
+              <div className="mt-8">
+                <h2 className="font-sans text-2xl font-bold mb-4">My Documents</h2>
+                <FileUpload patientId={patientId} uploadedBy="Patient" />
+              </div>
+            )}
           </div>
         </main>
         
